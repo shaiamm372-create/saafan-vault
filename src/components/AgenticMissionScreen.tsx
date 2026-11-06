@@ -48,7 +48,7 @@ function AgenticMissionWorkspace({ mission, briefing }: { mission: AgenticMissio
   const isDefender = mission.role === "defender";
   const [rankedDefenderAvailable, setRankedDefenderAvailable] = useState(false);
   const [liveAvailable, setLiveAvailable] = useState(false);
-  const [capabilityError, setCapabilityError] = useState(false);
+  const capabilityError = false;
   const [loadingCapabilities, setLoadingCapabilities] = useState(true);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<(LabRun & { submittedInput: { missionId: string; mode: string; artifact: string }; executedAt: string }) | null>(null);
@@ -60,7 +60,7 @@ function AgenticMissionWorkspace({ mission, briefing }: { mission: AgenticMissio
   const busy = useRef(false);
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/agentic/run", { signal: controller.signal }).then((response) => response.ok ? response.json() : Promise.reject()).then((data) => { setLiveAvailable(data.liveAvailable === true); setRankedDefenderAvailable(data.rankedDefenderAvailable === true); }).catch(() => { if (!controller.signal.aborted) setCapabilityError(true); }).finally(() => { if (!controller.signal.aborted) setLoadingCapabilities(false); });
+    fetch("/api/agentic/run", { signal: controller.signal }).then((response) => response.ok ? response.json() : Promise.reject()).then((data) => { setLiveAvailable(data.liveAvailable === true); setRankedDefenderAvailable(data.rankedDefenderAvailable === true); }).catch(() => { /* If availability cannot be checked, keep scripted practice available. */ if (!controller.signal.aborted) { setLiveAvailable(false); setRankedDefenderAvailable(false); } }).finally(() => { if (!controller.signal.aborted) setLoadingCapabilities(false); });
     return () => { controller.abort(); request.current?.abort(); };
   }, []);
   function reset() {
