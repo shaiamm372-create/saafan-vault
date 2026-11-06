@@ -13,7 +13,6 @@ import { BRAND } from "@/lib/brand";
 const NAV_LINKS = [
   { href: "/challenges?track=llm", label: "LLM CTF" },
   { href: "/agentic", label: "Agentic CTF" },
-  { href: "/leaderboard", label: "Leaderboard" },
   { href: "/learn", label: "Learn" },
   { href: "/community", label: "Community" },
 ];

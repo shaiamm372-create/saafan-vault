@@ -19,7 +19,6 @@ export default function Footer() {
             <Link href="/challenges?view=labs">All labs & guided defenses</Link>
             <Link href="/research">Research</Link>
             <Link href="/community">Community notes</Link>
-            <Link href="/leaderboard">Leaderboard</Link>
           </nav>
         </div>
         <div className="platform-footer-bottom">

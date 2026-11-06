@@ -41,7 +41,7 @@ export default function ChallengesPage({ searchParams }: { searchParams: Promise
         <div className="ctf-track-footer"><span>30 missions · OWASP Agentic 2026</span><strong>Explore Agentic CTF <ArrowUpRight size={18} /></strong></div>
       </Link>
     </div>
-    <div className="mt-8 flex flex-wrap gap-3"><Link href="/leaderboard" className="lab-button lab-button-primary">Leaderboard <ArrowUpRight size={16} /></Link><Link href="/community" className="lab-button lab-button-secondary">Community</Link><Link href="/challenges?view=labs" className="lab-button lab-button-secondary">All labs & guided defenses</Link></div>
+    <div className="mt-8 flex flex-wrap gap-3"><Link href="/community" className="lab-button lab-button-primary">Community <ArrowUpRight size={16} /></Link><Link href="/challenges?view=labs" className="lab-button lab-button-secondary">All labs & guided defenses</Link></div>
   </div></div>;
 }
 
@@ -74,7 +74,7 @@ function LlmMissions() {
             <Shield className="h-4 w-4" />
             LLM CTF · 16 MISSIONS
           </div>
-          <h1 className="font-semibold text-white mb-5">LLM missions</h1><Link href="/leaderboard?board=legacy" className="lab-button lab-button-secondary mb-5 mr-3">LLM CTF leaderboard <ArrowUpRight size={16} /></Link>
+          <h1 className="font-semibold text-white mb-5">LLM missions</h1>
           <Link href="/challenges" className="lab-button lab-button-secondary mb-5"><ArrowLeft size={16} /> Switch CTF track</Link>
           <p className="text-slate-400 max-w-2xl leading-relaxed">
             {CHALLENGES.length} progressively difficult challenges spanning the full OWASP LLM

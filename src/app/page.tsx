@@ -72,9 +72,9 @@ const FEATURES = [
   },
   {
     icon: Globe,
-    title: "Live Leaderboard",
+    title: "Guided defense labs",
     description:
-      "Compare LLM and Agentic standings, or follow the Overall board across both tracks. Simulated and scripted practice are unranked.",
+      "Change a real application control in a synthetic sandbox, then compare the original and defended execution side by side.",
     color: "text-purple-400",
     bg: "bg-purple-400/10",
   },
@@ -228,7 +228,7 @@ export default function HomePage() {
           <article className="lab-panel p-7 sm:p-9"><div className="flex items-center justify-between mb-6"><Shield size={30} strokeWidth={1.5} className="text-emerald-400" /><span className="font-mono text-xs text-slate-400">{TOTAL_CHALLENGES} MISSIONS</span></div><h3 className="text-3xl font-semibold text-white">LLM CTF</h3><p className="mt-4 text-slate-400 leading-7">Test what a model says. Craft prompt injections, extract protected information, and poison retrieved context.</p><p className="mt-6 text-sm text-emerald-300">Prompt challenges · Instant feedback · Defender explanations</p><Link href="/challenges?track=llm" className="lab-button lab-button-secondary mt-6">Explore LLM CTF <ArrowRight size={16} /></Link></article>
           <article className="lab-panel p-7 sm:p-9"><div className="flex items-center justify-between mb-6"><Network size={30} strokeWidth={1.5} className="text-blue-400" /><span className="font-mono text-xs text-slate-400">{AGENTIC_MISSIONS.length} MISSIONS</span></div><h3 className="text-3xl font-semibold text-white">Agentic CTF</h3><p className="mt-4 text-slate-400 leading-7">Test what an agent does. Explore tool misuse, identity abuse, poisoned memory, and rogue-agent containment.</p><p className="mt-6 text-sm text-blue-300">Executed tool traces · Fresh mock state · Defense replay</p><Link href="/agentic" className="lab-button lab-button-secondary mt-6">Explore Agentic CTF <ArrowRight size={16} /></Link></article>
         </div>
-        <div className="mt-8"><Link href="/challenges" className="lab-button lab-button-primary">Choose your CTF <ArrowRight size={17} /></Link><Link href="/leaderboard" className="lab-button lab-button-secondary ml-3">Leaderboard <ArrowRight size={17} /></Link><Link href="/community" className="lab-button lab-button-secondary ml-3">Community <ArrowRight size={17} /></Link><p className="mt-4 text-xs leading-6 text-slate-400">Choose LLM CTF or Agentic CTF on the next screen. Practice is free and unranked. Hosted live runs require verified sign-in and server availability.</p></div>
+        <div className="mt-8"><Link href="/challenges" className="lab-button lab-button-primary">Choose your CTF <ArrowRight size={17} /></Link><Link href="/community" className="lab-button lab-button-secondary ml-3">Community <ArrowRight size={17} /></Link><p className="mt-4 text-xs leading-6 text-slate-400">Choose LLM CTF or Agentic CTF on the next screen. Practice is free and unranked. Hosted live runs require verified sign-in and server availability.</p></div>
       </section>
 
       <section className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-12"><div className="home-learning-path"><div><p className="eyebrow">A complete first learning path</p><h2>{FOUNDATION_PATH.title}</h2><p>{FOUNDATION_PATH.summary}</p><span>{LESSONS.length} lessons · {FOUNDATION_PATH.minutes} minutes of reading · 3 guided defense labs</span></div><ol>{LESSONS.slice(0, 3).map((lesson, index) => <li key={lesson.slug}><Link href={`/learn/${lesson.slug}`}><span>0{index + 1}</span>{lesson.title}<ArrowRight size={14} /></Link></li>)}</ol><Link href="/learn" className="lab-button lab-button-secondary">Explore the full path <ArrowRight size={16} /></Link></div></section>

@@ -624,11 +624,11 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                     </Link>
                   ) : (
                     <Link
-                      href="/leaderboard"
+                      href="/agentic"
                       className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold text-sm transition-colors"
                     >
                       <Trophy className="h-4 w-4" />
-                      View Leaderboard
+                      Next: the Agentic CTF
                     </Link>
                   )}
                   <Link
