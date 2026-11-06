@@ -1,0 +1,46 @@
+{
+  "apphosting": {
+    "source": "."
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "site": "prompt-injection-ctf-2026",
+    "public": "hosting",
+    "cleanUrls": true,
+    "headers": [
+      {
+        "regex": "^/(?:ctf(?:/.*)?|challenges(?:/.*)?|agentic(?:/.*)?|leaderboard|aisywlc|community(?:/.*)?|learn(?:/.*)?|labs(?:/.*)?|research|evolution|docs|privacy|progress)?$",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store"
+          }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "prompt-injection-ctf",
+          "region": "us-central1"
+        }
+      }
+    ],
+    "redirects": [
+      {
+        "source": "/",
+        "destination": "/ctf",
+        "type": 302
+      },
+      {
+        "regex": "^/(?P<path>(?:challenges|agentic|leaderboard|community|learn|labs|research|evolution|docs|privacy|progress|sitemap\\.xml|robots\\.txt)(?:/.*)?)$",
+        "destination": "/ctf/:path",
+        "type": 302
+      }
+    ]
+  }
+}
