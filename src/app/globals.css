@@ -877,3 +877,4 @@ html[dir="rtl"] .bidi-auto { unicode-bidi: plaintext; text-align: start; }
 /* Arabic objectives and hints inside the English interface. */
 .font-arabic { font-family: "Plex Arabic", var(--font-sans); letter-spacing: 0 !important; text-align: right; }
 .font-arabic bdi, .font-arabic [dir="ltr"] { unicode-bidi: isolate; }
+.platform-footer-grid { grid-template-columns: 2fr 1fr; }

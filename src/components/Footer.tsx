@@ -21,13 +21,6 @@ export default function Footer() {
             <Link href="/community">Community notes</Link>
             <Link href="/leaderboard">Leaderboard</Link>
           </nav>
-          <nav aria-label="Platform information">
-            <strong>Platform</strong>
-            <Link href="/docs">How the lab works</Link>
-            <Link href="/docs#about">About</Link>
-            <Link href="/privacy">Data handling & privacy</Link>
-            <Link href="/progress">Your learning record</Link>
-          </nav>
         </div>
         <div className="platform-footer-bottom">
           <span>© {new Date().getFullYear()} {BRAND.owner} · {BRAND.university}</span>
