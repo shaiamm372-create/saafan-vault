@@ -7,16 +7,15 @@ import { AGENTIC_MISSIONS } from "@/lib/agentic/catalog";
 import { GUIDED_LABS } from "@/lib/guided-labs";
 import { BRAND, SITE_URL } from "@/lib/brand";
 
-const DESCRIPTION = `تعلّم أمن الذكاء الاصطناعي عبر مسار تأسيسي كامل، و${CHALLENGES.length + AGENTIC_MISSIONS.length} مهمة، و${GUIDED_LABS.length} مختبرات دفاع موجّهة. حاول تخترق ${BRAND.vault}، وافهم الثغرة، وتعلّم كيف تسدّها. التدريب مجاني وبدون تسجيل.`;
+const DESCRIPTION = `${BRAND.owner}: learn AI security through a complete foundational path, ${CHALLENGES.length + AGENTIC_MISSIONS.length} missions, and ${GUIDED_LABS.length} guided defense labs. Inspect execution evidence. Anonymous practice is free and unranked.`;
 
 const BASE_URL = SITE_URL;
-const TITLE = `${BRAND.name} — ${BRAND.tagline}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: TITLE,
-    template: `%s | ${BRAND.name}`,
+    default: BRAND.title,
+    template: `%s | ${BRAND.owner}`,
   },
   description:
     DESCRIPTION,
@@ -50,10 +49,10 @@ export const metadata: Metadata = {
   creator: BRAND.owner,
   openGraph: {
     type: "website",
-    locale: "ar_SA",
+    locale: "en_US",
     url: BASE_URL,
-    siteName: BRAND.name,
-    title: TITLE,
+    siteName: BRAND.owner,
+    title: BRAND.title,
     description:
       DESCRIPTION,
     images: [
@@ -61,13 +60,13 @@ export const metadata: Metadata = {
         url: `${BASE_URL}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: TITLE,
+        alt: BRAND.title,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: TITLE,
+    title: BRAND.title,
     description:
       DESCRIPTION,
     images: [`${BASE_URL}/og-image.png`],
@@ -88,8 +87,7 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  name: TITLE,
-  inLanguage: "ar",
+  name: BRAND.title,
   url: BASE_URL,
   description:
     DESCRIPTION,
@@ -106,7 +104,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl" data-scroll-behavior="smooth" className="dark">
+    <html lang="en" data-scroll-behavior="smooth" className="dark">
       <head>
         <script
           type="application/ld+json"
@@ -136,13 +134,13 @@ export default function RootLayout({
               <circle cx="150" cy="150" r="13" /><circle cx="1290" cy="240" r="13" /><circle cx="240" cy="670" r="13" />
             </g>
             <g className="cyber-labels">
-              <text x="158" y="137">مدخلات غير موثوقة</text><text x="1140" y="225">حدّ الثقة</text>
-              <text x="250" y="657">السياق / السياسة</text><text x="1100" y="677">صلاحيات الأدوات</text>
+              <text x="158" y="137">UNTRUSTED INPUT</text><text x="1140" y="225">TRUST BOUNDARY</text>
+              <text x="250" y="657">CONTEXT / POLICY</text><text x="1100" y="677">TOOL ACCESS</text>
             </g>
           </svg>
         </div>
         <Navigation />
-        <a href="#main-content" className="skip-content-link">تخطَّ إلى المحتوى</a>
+        <a href="#main-content" className="skip-content-link">Skip to content</a>
         <main id="main-content" className="flex-1" tabIndex={-1}>{children}</main>
         <Footer />
       </body>

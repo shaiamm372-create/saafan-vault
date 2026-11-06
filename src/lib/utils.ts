@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString("ar-SA-u-ca-gregory-nu-latn", {
+  return new Date(timestamp).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -18,7 +18,7 @@ export function formatTimeTaken(first?: number | null, last?: number | null): st
   const seconds = Math.round((last - first) / 1000);
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  return hours ? `${hours} س ${minutes} د` : minutes ? `${minutes} د ${seconds % 60} ث` : `${seconds} ث`;
+  return hours ? `${hours}h ${minutes}m` : minutes ? `${minutes}m ${seconds % 60}s` : `${seconds}s`;
 }
 
 export function getInitials(name: string): string {

@@ -1,4 +1,3 @@
-import { arLabError } from "@/lib/i18n/grader-ar";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { evaluateAttack } from "@/lib/evaluator";
@@ -19,12 +18,12 @@ const rankedAvailable = () => isFirebaseConfigured() && getAIBackend().isLive;
 export async function GET(req: NextRequest) {
   if (req.nextUrl.searchParams.get("progress") === "1") {
     try {
-      if (!isFirebaseConfigured()) return NextResponse.json({ error: "حفظ التقدّم على الخادم غير متاح حاليًا." }, { status: 503 });
+      if (!isFirebaseConfigured()) return NextResponse.json({ error: "Server progress is unavailable." }, { status: 503 });
       const player = await getAuthedPlayer(req);
-      if (!player) return NextResponse.json({ error: "سجّل الدخول لتحميل تقدّمك الموثّق." }, { status: 401 });
+      if (!player) return NextResponse.json({ error: "Sign in to load verified progress." }, { status: 401 });
       const snap = await getDb().collection("verified_llm_leaderboard").doc(player.uid).get();
       return NextResponse.json({ solvedChallenges: snap.get("solvedChallenges") ?? [] }, { headers });
-    } catch (error) { return NextResponse.json({ error: "التقدّم غير متاح حاليًا." }, { status: error instanceof InvalidTokenError ? 401 : 503 }); }
+    } catch (error) { return NextResponse.json({ error: "Progress unavailable." }, { status: error instanceof InvalidTokenError ? 401 : 503 }); }
   }
   return NextResponse.json({ rankedAvailable: rankedAvailable(), practiceAvailable: true, rankedRequiresSignIn: true }, { headers });
 }
@@ -33,16 +32,16 @@ export async function POST(req: NextRequest) {
   let reservation: { id: string; lease: string; userLimitId: string } | null = null;
   try {
     const body = await readBoundedJson(req, 16_384);
-    if (!body || typeof body !== "object" || Array.isArray(body)) return NextResponse.json({ error: "صيغة الطلب غير صحيحة" }, { status: 400 });
+    if (!body || typeof body !== "object" || Array.isArray(body)) return NextResponse.json({ error: "Expected an object" }, { status: 400 });
     const { challengeId, prompt, history, sessionId, action } = body;
     const challenge = typeof challengeId === "string" ? getChallengeById(challengeId) : null;
-    if (!challenge) return NextResponse.json({ error: "التحدي غير موجود" }, { status: 404 });
-    if (action !== undefined && action !== "start") return NextResponse.json({ error: "إجراء غير معروف" }, { status: 400 });
-    if (sessionId !== undefined && (typeof sessionId !== "string" || !/^[a-f0-9-]{36}$/.test(sessionId))) return NextResponse.json({ error: "جلسة غير صالحة" }, { status: 400 });
+    if (!challenge) return NextResponse.json({ error: "Challenge not found" }, { status: 404 });
+    if (action !== undefined && action !== "start") return NextResponse.json({ error: "Unknown action" }, { status: 400 });
+    if (sessionId !== undefined && (typeof sessionId !== "string" || !/^[a-f0-9-]{36}$/.test(sessionId))) return NextResponse.json({ error: "Invalid session" }, { status: 400 });
     const ranked = action === "start" || sessionId !== undefined;
-    if (ranked && !rankedAvailable()) return NextResponse.json({ error: "التشغيل المباشر المحتسب في الترتيب غير متاح. استخدم التدريب غير المحتسب." }, { status: 503 });
+    if (ranked && !rankedAvailable()) return NextResponse.json({ error: "Ranked live execution is unavailable. Use unranked practice." }, { status: 503 });
     const player = ranked ? await getAuthedPlayer(req) : null;
-    if (ranked && !player) return NextResponse.json({ error: "يلزم تسجيل الدخول بحساب Google موثّق." }, { status: 401 });
+    if (ranked && !player) return NextResponse.json({ error: "Verified Google sign-in is required." }, { status: 401 });
     if (action === "start" && player) {
       const now = Date.now();
       const id = randomUUID();
@@ -56,10 +55,10 @@ export async function POST(req: NextRequest) {
         tx.create(getDb().collection("llm_sessions").doc(id), { uid: player.uid, challengeId, startedAt: now, expiresAt: now + 20 * 60_000, history: [], attempts: 0, completed: false });
         return true;
       });
-      return accepted ? NextResponse.json({ sessionId: id, expiresAt: now + 20 * 60_000 }, { headers }) : NextResponse.json({ error: "بدأت جلسات كثيرة. حاول بعد دقيقة." }, { status: 429 });
+      return accepted ? NextResponse.json({ sessionId: id, expiresAt: now + 20 * 60_000 }, { headers }) : NextResponse.json({ error: "Too many session starts. Try again in a minute." }, { status: 429 });
     }
     if (typeof prompt !== "string" || !prompt.trim() || prompt.length > 4000 || (!ranked && history !== undefined && (!Array.isArray(history) || history.length > 20 || history.some((item) => !item || !["user", "assistant"].includes(item.role) || typeof item.content !== "string" || item.content.length > 4000)))) {
-      return NextResponse.json({ error: "اكتب نصًا بين 1 و4000 حرف، مع سجل محادثة صالح." }, { status: 400 });
+      return NextResponse.json({ error: "Provide a prompt of 1–4000 characters and valid history." }, { status: 400 });
     }
     let serverHistory: ConversationMessage[] = [];
     if (player && sessionId) {
@@ -79,7 +78,7 @@ export async function POST(req: NextRequest) {
         tx.set(globalLimit, { count: (global.get("count") ?? 0) + 1 });
         return state.history as ConversationMessage[];
       });
-      if (!claimed) return NextResponse.json({ error: "انتهت الجلسة أو اكتملت أو مشغولة، أو وصلت للحد المسموح. ابدأ جلسة جديدة عند توفرها." }, { status: 429 });
+      if (!claimed) return NextResponse.json({ error: "Session expired, completed, busy, or run quota reached. Start a fresh session when available." }, { status: 429 });
       reservation = { id: sessionId, lease, userLimitId: player.uid };
       serverHistory = claimed;
     }
@@ -100,11 +99,11 @@ export async function POST(req: NextRequest) {
     await Promise.allSettled([recordFunnelEvent("attempt"), ...(result.success ? [recordFunnelEvent("solve")] : [])]);
     return NextResponse.json({ ...result, scoreRecorded, cohortRecorded, executionMode: ranked ? "server-live" : "simulated-practice" }, { headers });
   } catch (error) {
-    if (error instanceof RequestSizeError) return NextResponse.json({ error: arLabError(error.message) }, { status: 413 });
-    if (error instanceof InvalidTokenError) return NextResponse.json({ error: "جلسة تسجيل الدخول غير صالحة" }, { status: 401 });
-    if (error instanceof SyntaxError) return NextResponse.json({ error: "صيغة JSON غير صالحة" }, { status: 400 });
+    if (error instanceof RequestSizeError) return NextResponse.json({ error: error.message }, { status: 413 });
+    if (error instanceof InvalidTokenError) return NextResponse.json({ error: "Invalid sign-in session" }, { status: 401 });
+    if (error instanceof SyntaxError) return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     console.error("[evaluate] execution failed");
-    return NextResponse.json({ error: "فشل التنفيذ أو حفظ النتيجة. لم يُعتمد أي إنجاز." }, { status: 503 });
+    return NextResponse.json({ error: "Execution or score persistence failed. No completion is confirmed." }, { status: 503 });
   } finally {
     if (reservation) {
       const ref = getDb().collection("llm_sessions").doc(reservation.id);

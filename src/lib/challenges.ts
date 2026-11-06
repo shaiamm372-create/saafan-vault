@@ -1,5 +1,4 @@
 import { Challenge } from "@/types";
-import { CHALLENGES_AR } from "@/lib/i18n/challenges-ar";
 
 const ALL_CHALLENGES: Challenge[] = [
   {
@@ -1235,13 +1234,6 @@ async function loadIntoBuild(a: Artifact, ctx: RegistryContext) {
 }`,
 });
 
-// Arabic edition: swap in the Arabic text players read. System prompts,
-// success patterns and grading checks are untouched, so grading is unchanged.
-for (const challenge of ALL_CHALLENGES) {
-  const ar = CHALLENGES_AR[challenge.id];
-  if (ar) Object.assign(challenge, { goalEn: challenge.goal, titleEn: challenge.title }, ar);
-}
-
 // Core challenges always available
 export const CHALLENGES = ALL_CHALLENGES;
 
@@ -1276,7 +1268,7 @@ export function getWeeklyChallenge(): Challenge {
 /** Returns the current "season" label (e.g. "Season 1 · May 2026") */
 export function getCurrentSeason(): string {
   const now = new Date();
-  return `الموسم 1 · ${now.toLocaleString("ar-SA-u-ca-gregory-nu-latn", { month: "long", year: "numeric" })}`;
+  return `Season 1 · ${now.toLocaleString("en-US", { month: "long", year: "numeric" })}`;
 }
 
 export function getChallengeById(id: string): Challenge | undefined {
@@ -1287,9 +1279,9 @@ export const DIFFICULTY_CONFIG: Record<
   string,
   { color: string; label: string; bg: string }
 > = {
-  easy: { color: "text-emerald-400", label: "سهل", bg: "bg-emerald-400/10 border-emerald-400/30" },
-  medium: { color: "text-yellow-400", label: "متوسط", bg: "bg-yellow-400/10 border-yellow-400/30" },
-  hard: { color: "text-orange-400", label: "صعب", bg: "bg-orange-400/10 border-orange-400/30" },
-  expert: { color: "text-red-400", label: "خبير", bg: "bg-red-400/10 border-red-400/30" },
-  legendary: { color: "text-purple-400", label: "أسطوري", bg: "bg-purple-400/10 border-purple-400/30" },
+  easy: { color: "text-emerald-400", label: "Easy", bg: "bg-emerald-400/10 border-emerald-400/30" },
+  medium: { color: "text-yellow-400", label: "Medium", bg: "bg-yellow-400/10 border-yellow-400/30" },
+  hard: { color: "text-orange-400", label: "Hard", bg: "bg-orange-400/10 border-orange-400/30" },
+  expert: { color: "text-red-400", label: "Expert", bg: "bg-red-400/10 border-red-400/30" },
+  legendary: { color: "text-purple-400", label: "Legendary", bg: "bg-purple-400/10 border-purple-400/30" },
 };

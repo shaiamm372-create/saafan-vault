@@ -19,9 +19,9 @@ function tierProgress(solvedChallenges: string[]) {
   const done = AISYWLC_MISSION_IDS.filter((id) => solved.has(id)).length;
   const starterLeft = AISYWLC_MISSION_IDS.slice(0, 3).filter((id) => !solved.has(id)).length;
   return [
-    { name: "مبتدئ · المستوى 3", earned: starterLeft === 0 },
-    { name: "أساسي · المستوى 8", earned: done >= 8 },
-    { name: "كامل · المستوى 16", earned: done >= AISYWLC_MISSION_IDS.length },
+    { name: "Starter · level 3", earned: starterLeft === 0 },
+    { name: "Core · level 8", earned: done >= 8 },
+    { name: "Full · level 16", earned: done >= AISYWLC_MISSION_IDS.length },
   ];
 }
 
@@ -53,7 +53,7 @@ export default function LeaderboardPage({ searchParams }: { searchParams: Promis
     };
     load()
       .then((r) => {
-        if (!r.ok) throw new Error("لوحة المتصدرين غير متاحة");
+        if (!r.ok) throw new Error("Leaderboard unavailable");
         return r.json();
       })
       .then((data) => {
@@ -78,33 +78,33 @@ export default function LeaderboardPage({ searchParams }: { searchParams: Promis
     <div className="pt-16 min-h-screen">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="ranking-hero">
-          <div><p className="eyebrow mb-5"><Shield size={14} /> أمن الذكاء الاصطناعي / غرفة الترتيب</p><h1 className="font-semibold text-white">لوحة<br /><span className="text-emerald-400">المتصدرين.</span></h1><p className="mt-5 max-w-lg text-sm leading-7 text-slate-400">اكسر القيد، وأكمل المهمة، واحجز مكانك بين من يختبرون حدود الذكاء الاصطناعي.</p></div>
-          <div className="ranking-emblem" aria-hidden="true"><span /><span /><Trophy size={48} strokeWidth={1.2} /><p>الترتيب / التحدي</p></div>
+          <div><p className="eyebrow mb-5"><Shield size={14} /> AI security / ranking console</p><h1 className="font-semibold text-white">The adversary<br /><span className="text-emerald-400">leaderboard.</span></h1><p className="mt-5 max-w-lg text-sm leading-7 text-slate-400">Break the constraint. Complete the mission. Earn your place among the players testing AI boundaries.</p></div>
+          <div className="ranking-emblem" aria-hidden="true"><span /><span /><Trophy size={48} strokeWidth={1.2} /><p>CTF / RANKINGS</p></div>
         </div>
 
-        <div className="ranking-console-bar"><div className="ranking-periods" role="group" aria-label="فترة الترتيب">
+        <div className="ranking-console-bar"><div className="ranking-periods" role="group" aria-label="Leaderboard period">
           {(["legacy", "agentic", "overall", "all", "week", "cohort"] as const).map((option) => (
             <button key={option} onClick={() => selectPeriod(option)} aria-pressed={period === option} className={period === option ? "is-active" : ""}>
               {period === option && <motion.span className="ranking-period-active" layoutId="ranking-period" transition={{ duration: reduceMotion ? 0 : 0.25 }} />}
-              <span className="relative">{option === "legacy" ? "خزنة النماذج · التاريخي" : option === "overall" ? "الترتيب العام" : option === "agentic" ? "مختبر الوكلاء" : option === "week" ? "هذا الأسبوع" : option === "cohort" ? (contestOver ? "AISYWLC · النهائي" : "AISYWLC 2026") : "خزنة النماذج الموثّق"}</span>
+              <span className="relative">{option === "legacy" ? "LLM CTF · Historical" : option === "overall" ? "Overall" : option === "agentic" ? "Agentic CTF" : option === "week" ? "This week" : option === "cohort" ? (contestOver ? "AISYWLC · Final" : "AISYWLC 2026") : "Verified LLM"}</span>
             </button>
           ))}
-        </div><span className="ranking-status"><Terminal size={13} /> {loading ? "جارٍ جلب الترتيب" : error ? "الاتصال غير متاح" : `يُعرض ${shownCount} لاعب`}</span></div>
-        <p className="mb-4 text-sm text-slate-400">{period === "legacy" || period === "cohort" ? "الترتيب التاريخي يحتفظ بقواعد احتساب سابقة، وقد يشمل التدريب بالمحاكاة، ولا يُثبت اختراق نموذج مباشر." : "الترتيب الجديد لخزنة النماذج يتطلب جلسات مباشرة على الخادم مع تسجيل الدخول. التدريب المجهول والتشغيل بمفتاحك لا يدخلان الترتيب، والترتيب العام يجمع نقاط المسارين الموثّقة."}</p>
+        </div><span className="ranking-status"><Terminal size={13} /> {loading ? "Fetching standings" : error ? "Connection unavailable" : `${shownCount} ranked players shown`}</span></div>
+        <p className="mb-4 text-sm text-slate-400">{period === "legacy" || period === "cohort" ? "Historical standings retain earlier scoring rules and may include simulated practice. They do not establish live model compromise." : "New LLM standings require signed-in, server-run live sessions. Anonymous practice and viewer-key runs are unranked. Overall combines verified LLM and agentic scores."}</p>
         <p className="mb-4 text-center text-sm text-slate-400">
-          الترتيب حسب النقاط، ثم عدد المهام المحلولة، ثم أقصر وقت بين أول حل وآخر حل. وعند التعادل، يتقدّم من أنهى أولًا.
+          Ranked by points, then missions solved, then shortest time from first to last solve. Still tied? The earlier finisher wins.
         </p>
-        {period === "agentic" && <p className="mb-6 text-center text-sm text-slate-400">هجمات على نموذج مباشر وإنجازات دفاعية يتحقق منها الخادم. التدريب بالسيناريو لا يدخل الترتيب. المتاح حاليًا {AGENTIC_MISSIONS.filter((mission) => mission.status === "available").length} مهمة.</p>}
-        {period === "overall" && <p className="mb-6 text-center text-sm text-slate-400">مجموع نقاط خزنة النماذج ومختبر الوكلاء. تُدمج الحسابات فقط عند تطابق معرّف المستخدم على الخادم، وأوقات البدء التاريخية المجهولة تبقى مجهولة.</p>}
+        {period === "agentic" && <p className="mb-6 text-center text-sm text-slate-400">Server-verified live-model attacks and defender completions. Scripted practice is unranked. {AGENTIC_MISSIONS.filter((mission) => mission.status === "available").length} missions currently available.</p>}
+        {period === "overall" && <p className="mb-6 text-center text-sm text-slate-400">Combined LLM Security and Agentic Lab points. Accounts combine only when their server user IDs match. Unknown historical start times stay unknown.</p>}
         {period === "week" && (
           <p className="mb-8 text-center text-sm text-slate-400">
-            {weekStart ? `أسبوع ${new Date(weekStart).toLocaleDateString("ar-SA-u-ca-gregory-nu-latn", { month: "short", day: "numeric", timeZone: "UTC" })} (UTC). ` : ""}
-            حل واحد يقيّمه الخادم لكل لاعب ومهمة أسبوعيًا، بنقاط ثابتة لكل مهمة. ولا يمكن إعادة بناء الحلول التاريخية.
+            {weekStart ? `Week of ${new Date(weekStart).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })} (UTC). ` : ""}
+            One server-graded solve per player and mission each week; fixed mission points. Historical solves cannot be reconstructed.
           </p>
         )}
         {period === "cohort" && (
           <div className="mb-8 text-center text-sm text-slate-300">
-            <p>{contestOver ? "انتهت المسابقة، وهذا هو الترتيب النهائي." : "إنجازات مهام المسابقة."} نقاط ثابتة لكل مهمة، ونتيجة واحدة لكل مهمة خلال فترة المسابقة.</p>
+            <p>{contestOver ? "The contest is over. These are the final standings." : "Contest mission completions."} Fixed points per mission; one score per mission in the contest window.</p>
             <div className="mt-3 flex flex-wrap justify-center gap-2">
               {tierProgress(own?.solvedChallenges ?? []).map(({ name, earned }) => (
                 <span key={name} className={`rounded-full border px-3 py-1 text-xs ${own && earned ? "border-emerald-400 bg-emerald-400/20 text-emerald-200" : "border-emerald-500/40 text-emerald-300"}`}>
@@ -112,15 +112,15 @@ export default function LeaderboardPage({ searchParams }: { searchParams: Promis
                 </span>
               ))}
             </div>
-            {own && <p className="mt-4 font-semibold text-emerald-300">ترتيبك: {own.rank === null ? "غير مرتّب" : `#${own.rank}`} · {own.completedCount}/16 مهمة · {own.points} نقطة · {own.tier ?? "لا فئة بعد"}</p>}
+            {own && <p className="mt-4 font-semibold text-emerald-300">Your rank: {own.rank === null ? "Unranked" : `#${own.rank}`} · {own.completedCount}/16 missions · {own.points} pts · {own.tier ?? "No tier yet"}</p>}
           </div>
         )}
 
         {!loading && !error && leaders.length > 0 && <div className="ranking-podium">
           {[...leaders].sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0)).map((entry) => <motion.div key={entry.userId} data-rank-band="podium" className={`ranking-contender ${entry.rank === 1 ? "ranking-champion" : ""}`} initial={reduceMotion ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduceMotion ? 0 : 0.4, delay: reduceMotion ? 0 : ((entry.rank ?? 1) - 1) * 0.08 }}>
-            <div className="contender-topline"><span>المركز / {String(entry.rank).padStart(2, "0")}</span>{entry.rank === 1 ? <Trophy size={16} /> : <Crosshair size={16} />}</div>
-            <div className="contender-identity"><span className="contender-avatar">{entry.avatar}</span><span className="min-w-0"><span className="block truncate text-base font-semibold text-white" title={entry.username}>{entry.username}</span><span className="text-xs text-slate-400">حلّ {entry.completedCount} مهمة</span></span></div>
-            <div className="contender-score">{entry.points.toLocaleString()}<span>نقطة</span></div>
+            <div className="contender-topline"><span>RANK / {String(entry.rank).padStart(2, "0")}</span>{entry.rank === 1 ? <Trophy size={16} /> : <Crosshair size={16} />}</div>
+            <div className="contender-identity"><span className="contender-avatar">{entry.avatar}</span><span className="min-w-0"><span className="block truncate text-base font-semibold text-white" title={entry.username}>{entry.username}</span><span className="text-xs text-slate-400">{entry.completedCount} missions solved</span></span></div>
+            <div className="contender-score">{entry.points.toLocaleString()}<span>PTS</span></div>
             <div className="contender-trace" aria-hidden="true"><span /><span /><span /><span /><span /><span /><span /><span /></div>
           </motion.div>)}
         </div>}
@@ -128,17 +128,17 @@ export default function LeaderboardPage({ searchParams }: { searchParams: Promis
         {loading ? (
           <div role="status" className="ranking-loading flex items-center justify-center py-24 text-slate-400 gap-2">
             <Loader2 className="h-5 w-5 animate-spin" />
-            جارٍ تحميل الترتيب…
+            Loading ranking data…
           </div>
         ) : error ? (
           <div className="rounded-xl border border-red-500/30 bg-red-500/5 px-6 py-12 text-center text-sm text-red-200">
-            لوحة المتصدرين غير متاحة مؤقتًا. حاول مجددًا بعد قليل.
+            The leaderboard is temporarily unavailable. Please try again shortly.
           </div>
         ) : period === "cohort" ? (
-          cohortEntries.length === 0 ? <div className="rounded-xl border border-slate-700 p-10 text-center text-slate-300">لا توجد حلول مسجّلة للدفعة بعد.</div> :
+          cohortEntries.length === 0 ? <div className="rounded-xl border border-slate-700 p-10 text-center text-slate-300">No cohort solves recorded yet.</div> :
           <div className="ranking-table">
             <div className="ranking-row ranking-header">
-              <span>الترتيب</span><span>اللاعب</span><span className="ranking-points">النقاط</span><span className="ranking-solved">المحلولة</span><span className="ranking-time">الوقت</span><span className="ranking-active">الفئة</span>
+              <span>Rank</span><span>Player</span><span className="ranking-points">Points</span><span className="ranking-solved">Solved</span><span className="ranking-time">Time</span><span className="ranking-active">Tier</span>
             </div>
             {cohortEntries.map((entry) => <div key={entry.userId} className="ranking-row" data-rank-band={entry.rank !== null && entry.rank >= 1 && entry.rank <= 3 ? "podium" : entry.rank !== null && entry.rank >= 4 && entry.rank <= 10 ? "top-ten" : undefined}>
               <span className="text-slate-400">#{entry.rank}</span>
@@ -148,9 +148,9 @@ export default function LeaderboardPage({ searchParams }: { searchParams: Promis
           </div>
         ) : entries.length === 0 ? (
           <div className="rounded-xl border border-slate-700 bg-slate-800/40 px-6 py-16 text-center">
-            <p className="text-xl font-bold text-white">لا توجد نتائج في هذه اللوحة بعد</p>
-            <p className="mt-2 text-sm text-slate-400">كن أول من يسجّل نتيجة هنا.</p>
-            <Link href="/challenges/level-1-basic-injection" className="lab-button lab-button-primary mt-5">العب المستوى 1</Link>
+            <p className="text-xl font-bold text-white">No scores on this board yet</p>
+            <p className="mt-2 text-sm text-slate-400">Be the first to put a score on the board.</p>
+            <Link href="/challenges/level-1-basic-injection" className="lab-button lab-button-primary mt-5">Play level 1</Link>
           </div>
         ) : (
           <LeaderboardTable entries={entries} period={period} totalMissions={period === "overall" ? 46 : period === "agentic" ? AGENTIC_MISSIONS.filter((mission) => mission.status === "available").length : undefined} />
@@ -159,9 +159,9 @@ export default function LeaderboardPage({ searchParams }: { searchParams: Promis
         {/* CTA */}
         <div className="ranking-cta mt-8">
           <p className="text-sm text-slate-400">
-            <span className="text-emerald-400 font-semibold">ابدأ اللعب</span> لتظهر في لوحة المتصدرين.{" "}
+            <span className="text-emerald-400 font-semibold">Start playing</span> to appear on the leaderboard.{" "}
             <Link href="/challenges" className="text-emerald-400 hover:underline">
-              استكشف المهام <ArrowUpRight className="inline h-4 w-4" />
+              Explore missions <ArrowUpRight className="inline h-4 w-4" />
             </Link>
           </p>
         </div>

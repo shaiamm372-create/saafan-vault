@@ -3,12 +3,12 @@ import { getChallengeById } from "@/lib/challenges";
 import { SITE_HOST } from "@/lib/brand";
 
 export const runtime = "edge";
-export const alt = "Saafan's Vault Challenge";
+export const alt = "KFU Cybersecurity Club AI Security Challenge";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 const DIFFICULTY_COLORS: Record<string, string> = {
-  easy: "#e0b04a",
+  easy: "#2fb3bd",
   medium: "#facc15",
   hard: "#fb923c",
   expert: "#f87171",
@@ -30,14 +30,14 @@ export default async function OGImage({ params }: { params: Promise<{ id: string
   const challenge = getChallengeById(id);
   if (!challenge) {
     return new ImageResponse(
-      <div style={{ display: "flex", width: "100%", height: "100%", background: "#15110d", color: "white", alignItems: "center", justifyContent: "center", fontSize: 48 }}>
-        Saafan&apos;s Vault · KFU Cyber Security Club
+      <div style={{ display: "flex", width: "100%", height: "100%", background: "#09161c", color: "white", alignItems: "center", justifyContent: "center", fontSize: 48 }}>
+        KFU Cybersecurity Club
       </div>,
       { ...size }
     );
   }
 
-  const diffColor = DIFFICULTY_COLORS[challenge.difficulty] ?? "#ab9e8b";
+  const diffColor = DIFFICULTY_COLORS[challenge.difficulty] ?? "#81a0a8";
   const icon = ATTACK_ICONS[challenge.attackType] ?? "🎯";
 
   return new ImageResponse(
@@ -47,16 +47,16 @@ export default async function OGImage({ params }: { params: Promise<{ id: string
         flexDirection: "column",
         width: "100%",
         height: "100%",
-        background: "linear-gradient(135deg, #15110d 0%, #241f1a 100%)",
+        background: "linear-gradient(135deg, #09161c 0%, #11262e 100%)",
         padding: "60px 80px",
         fontFamily: "system-ui, sans-serif",
       }}
     >
       {/* Top bar */}
       <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#e0b04a", fontSize: 20, fontWeight: 700 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#2fb3bd", fontSize: 20, fontWeight: 700 }}>
           <span>🛡️</span>
-          <span>SAAFAN&apos;S VAULT · KFU CYBER SECURITY CLUB</span>
+          <span>KFU CYBERSECURITY CLUB · AI SECURITY CHALLENGES</span>
         </div>
       </div>
 
@@ -65,8 +65,8 @@ export default async function OGImage({ params }: { params: Promise<{ id: string
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <span style={{ fontSize: 56 }}>{icon}</span>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ color: "#ab9e8b", fontSize: 22, fontWeight: 600 }}>Level {challenge.level}</div>
-            <div style={{ color: "white", fontSize: 48, fontWeight: 800, lineHeight: 1.1 }}>{challenge.titleEn ?? challenge.title}</div>
+            <div style={{ color: "#81a0a8", fontSize: 22, fontWeight: 600 }}>Level {challenge.level}</div>
+            <div style={{ color: "white", fontSize: 48, fontWeight: 800, lineHeight: 1.1 }}>{challenge.title}</div>
           </div>
         </div>
 
@@ -86,17 +86,17 @@ export default async function OGImage({ params }: { params: Promise<{ id: string
           >
             {challenge.difficulty}
           </div>
-          <div style={{ color: "#ab9e8b", fontSize: 20 }}>•</div>
+          <div style={{ color: "#81a0a8", fontSize: 20 }}>•</div>
           <div style={{ color: "white", fontSize: 22, fontWeight: 700 }}>{challenge.basePoints} pts</div>
-          <div style={{ color: "#ab9e8b", fontSize: 20 }}>•</div>
-          <div style={{ color: "#ab9e8b", fontSize: 20 }}>Can you break the AI?</div>
+          <div style={{ color: "#81a0a8", fontSize: 20 }}>•</div>
+          <div style={{ color: "#81a0a8", fontSize: 20 }}>Can you break the AI?</div>
         </div>
       </div>
 
       {/* Bottom */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto" }}>
-        <div style={{ color: "#665b4f", fontSize: 18 }}>{SITE_HOST}</div>
-        <div style={{ color: "#665b4f", fontSize: 18 }}>Free · No sign-up · AI security challenges</div>
+        <div style={{ color: "#4b6973", fontSize: 18 }}>{SITE_HOST}</div>
+        <div style={{ color: "#4b6973", fontSize: 18 }}>Free · No sign-up · 16 challenges</div>
       </div>
     </div>,
     { ...size }

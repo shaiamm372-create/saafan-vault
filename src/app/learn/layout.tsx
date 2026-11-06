@@ -1,12 +1,12 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "تعلّم أمن الذكاء الاصطناعي",
+  title: "Learn AI Security",
   description:
-    "مسار تأسيسي كامل من ستة دروس في أمن الذكاء الاصطناعي، مع اختبارات فهم ودفاعات موجّهة وأمثلة أصلية ومراجع.",
+    "A complete six-lesson AI security foundation path with knowledge checks, guided defenses, original examples, and source-linked references.",
   openGraph: {
-    title: "تعلّم أمن الذكاء الاصطناعي — خزنة سعفان",
-    description: "حدود الثقة، والسياق الحساس، والحقن غير المباشر، ونطاق الموارد، وتفويض الأدوات، والأدلة القابلة للتكرار.",
+    title: "Learn AI Security — KFU Cybersecurity Club",
+    description: "Learn trust boundaries, sensitive context, indirect injection, resource scope, tool authorization, and reproducible evidence.",
   },
 };
 

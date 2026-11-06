@@ -6,21 +6,21 @@ import { getDb } from "@/lib/firebase-admin";
 export async function GET(req: NextRequest) {
   try {
     const player = await getAuthedPlayer(req);
-    if (!player) return NextResponse.json({ error: "يلزم تسجيل الدخول" }, { status: 401 });
+    if (!player) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
     return NextResponse.json({ handle: player.joined ? player.handle : null, joined: player.joined });
   } catch {
-    return NextResponse.json({ error: "جلسة غير صالحة" }, { status: 401 });
+    return NextResponse.json({ error: "Invalid session" }, { status: 401 });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const player = await getAuthedPlayer(req);
-    if (!player) return NextResponse.json({ error: "يلزم تسجيل الدخول" }, { status: 401 });
+    if (!player) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
     const candidates = cohortHandleCandidates(player.name, player.uid);
     const settled = candidates.length === 1 ? candidates : candidates.slice(0, -1);
     if (player.joined && player.handle && settled.includes(player.handle)) return NextResponse.json({ handle: player.handle, joined: true });
-    if (!player.joined && Date.now() > AISYWLC.endsAt) return NextResponse.json({ error: "انتهى التسجيل" }, { status: 403 });
+    if (!player.joined && Date.now() > AISYWLC.endsAt) return NextResponse.json({ error: "Registration closed" }, { status: 403 });
     const db = getDb();
     const playerRef = db.collection("players").doc(player.uid);
     const cohortRef = db.collection("cohort_leaderboard").doc(`${AISYWLC.id}_${player.uid}`);
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json({ handle, joined: true });
   } catch (error) {
-    if (error instanceof InvalidTokenError) return NextResponse.json({ error: "جلسة غير صالحة" }, { status: 401 });
+    if (error instanceof InvalidTokenError) return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     if (error instanceof Error && error.message === "Handle is taken") return NextResponse.json({ error: error.message }, { status: 409 });
     console.error("[cohort join] failed");
     return NextResponse.json({ error: "Registration unavailable" }, { status: 500 });

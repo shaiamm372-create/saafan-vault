@@ -1,12 +1,12 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "المتصدرون",
+  title: "Leaderboard",
   description:
-    "لوحة متصدري خزنة سعفان. هل تستطيع حل التحديات الستة عشر والوصول للمركز الأول؟",
+    "Global leaderboard for the KFU Cybersecurity Club AI security challenges. See the top AI red teamers worldwide. Can you crack all 16 challenges and reach #1?",
   openGraph: {
-    title: "لوحة المتصدرين — خزنة سعفان",
-    description: "نافس في 16 تحديًا لحقن الأوامر و30 مهمة لأمن الوكلاء.",
+    title: "Global Leaderboard — KFU Cybersecurity Club",
+    description: "Top AI red teamers worldwide. Compete across 16 prompt injection and AI agent security challenges.",
   },
 };
 

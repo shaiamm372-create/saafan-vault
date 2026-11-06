@@ -69,23 +69,23 @@ export default function LlmKeySettings({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
       <div
-        className="w-full max-w-lg rounded-2xl border border-slate-700 bg-[#241f1a] shadow-2xl"
+        className="w-full max-w-lg rounded-2xl border border-slate-700 bg-[#11262e] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-700 px-5 py-4">
           <div className="flex items-center gap-2">
             <KeyRound className="h-5 w-5 text-emerald-400" />
-            <h2 className="font-bold text-white">التقييم المباشر بنموذج حقيقي — مفتاحك الخاص</h2>
+            <h2 className="font-bold text-white">Live LLM grading — your API key</h2>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white" aria-label="إغلاق">
+          <button onClick={onClose} className="text-slate-400 hover:text-white" aria-label="Close">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="space-y-4 px-5 py-5">
           <p className="text-sm text-slate-400">
-            افتراضيًا، تُقيَّم الهجمات بمطابق أنماط يعمل دون اتصال (بلا حاجة لمفتاح). أضف مفتاحك الخاص ليؤدي نموذج
-            حقيقي دور الهدف، ويحكم هل نجح هجومك.
+            By default, attacks are scored by an offline pattern-matcher (no key needed). Add your own key to have a
+            real model play the target and judge whether your attack succeeded.
           </p>
 
           <label className="flex items-center gap-3 text-sm text-slate-200">
@@ -95,7 +95,7 @@ export default function LlmKeySettings({
               onChange={(e) => setEnabled(e.target.checked)}
               className="h-4 w-4 accent-emerald-500"
             />
-            استخدم مفتاحي للتقييم المباشر
+            Use my key for live grading
           </label>
 
           <div className="flex gap-2">
@@ -115,7 +115,7 @@ export default function LlmKeySettings({
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">مفتاح API</label>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">API key</label>
             <input
               type="password"
               value={apiKey}
@@ -129,7 +129,7 @@ export default function LlmKeySettings({
 
           <div>
             <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              النموذج <span className="normal-case text-slate-600">(اختياري — الافتراضي {DEFAULT_MODEL_HINT[provider]})</span>
+              Model <span className="normal-case text-slate-600">(optional — default {DEFAULT_MODEL_HINT[provider]})</span>
             </label>
             <input
               type="text"
@@ -145,15 +145,16 @@ export default function LlmKeySettings({
             <div className="flex items-start gap-2 text-emerald-300">
               <ShieldCheck className="mt-0.5 h-4 w-4 flex-shrink-0" />
               <span>
-                <strong>مفتاحك يبقى في متصفحك.</strong> يُحفظ فقط في التخزين المحلي لهذا المتصفح، ويُرسل
-                <strong> مباشرة إلى {provider === "openai" ? "OpenAI" : "Anthropic"}</strong>، فلا يصل أبدًا إلى خوادمنا ولا نراه. والشفرة مفتوحة المصدر لتتحقق بنفسك.
+                <strong>Your key stays in your browser.</strong> It&apos;s saved only in this browser&apos;s local
+                storage and sent <strong>directly to {provider === "openai" ? "OpenAI" : "Anthropic"}</strong> — it
+                never reaches our servers, and we never see it. Open-source, so you can verify.
               </span>
             </div>
             <div className="flex items-start gap-2 text-amber-300/90">
               <TriangleAlert className="mt-0.5 h-4 w-4 flex-shrink-0" />
               <span>
-                أي شيء في تخزين المتصفح تستطيع قراءته البرامج العاملة في الصفحة. استخدم مفتاحًا بحد إنفاق منخفض (أو مفتاحًا
-                مؤقتًا)، واضغط <strong>امسح المفتاح</strong> عند الانتهاء.
+                Anything in browser storage can be read by scripts on the page. Use a key with a low spending cap (or a
+                throwaway key), and hit <strong>Clear key</strong> when you&apos;re done.
               </span>
             </div>
           </div>
@@ -161,20 +162,20 @@ export default function LlmKeySettings({
 
         <div className="flex items-center justify-between border-t border-slate-700 px-5 py-4">
           <button onClick={clear} className="text-sm font-medium text-slate-400 hover:text-red-400">
-            امسح المفتاح
+            Clear key
           </button>
           <div className="flex gap-2">
             <button
               onClick={onClose}
               className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-300 hover:text-white"
             >
-              إلغاء
+              Cancel
             </button>
             <button
               onClick={save}
               className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-bold text-slate-900 hover:bg-emerald-400"
             >
-              حفظ
+              Save
             </button>
           </div>
         </div>

@@ -58,10 +58,6 @@ export interface Challenge {
   description: string;
   systemPrompt: string;
   goal: string;
-  /** Original English goal, kept for model-facing judge prompts. */
-  goalEn?: string;
-  /** Original English title, kept for generated social images. */
-  titleEn?: string;
   timeLimit: number; // seconds
   basePoints: number;
   hints: string[];

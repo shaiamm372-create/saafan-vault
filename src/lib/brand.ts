@@ -1,20 +1,20 @@
 /**
- * Brand settings for the Arabic (Al-Ahsa) edition.
- * Change the names here and they update across the whole site.
+ * Brand settings. Change the names here and they update across the whole site.
  */
 export const BRAND = {
-  /** Platform name shown in the navigation bar and page titles. */
-  name: "كفو",
-  /** The guardian character. */
-  guardian: "سعفان",
-  /** The thing the guardian protects. */
-  vault: "خزنة سعفان",
-  /** Short tagline under the name. */
-  tagline: "خزنة سعفان للذكاء الاصطناعي",
-  /** Who runs this edition. */
-  owner: "نادي الأمن السيبراني — جامعة الملك فيصل",
-  ownerShort: "نادي الأمن السيبراني",
+  /** Club name as shown on the logo. */
+  name: "Cybersecurity Club",
+  nameAr: "نادي الأمن السيبراني",
+  university: "King Faisal University",
+  /** The platform itself. */
+  platform: "AI Security Challenges",
+  /** Title used in the browser tab and share previews. */
+  title: "AI Security Challenges · KFU Cybersecurity Club",
+  owner: "KFU Cybersecurity Club",
   ownerEmail: "kfucsclub@gmail.com",
+  /** Logo files in /public/brand. */
+  emblem: "/brand/csc-emblem.png",
+  logo: "/brand/csc-logo.png",
 } as const;
 
 /**

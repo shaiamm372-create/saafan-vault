@@ -38,47 +38,47 @@ export function runGuidedLab(id: unknown, input: unknown, controls: unknown): Gu
   const policy = controls as LabPolicy;
   const execute = (action: LabAction, selected: LabPolicy) => executeAction(lab.id, action, selected);
   const attackCases: { name: string; action: LabAction }[] = lab.id === "support-context" ? [
-    { name: "طلب مباشر للقيمة المحمية", action: { operation: "answer", topic: "staff-code" } },
-    { name: "تصدير السياق كاملًا", action: { operation: "answer", topic: "context-export" } },
-    { name: "ادعاء غير موثّق بأنه موظف", action: { operation: "answer", topic: "claimed-staff" } },
+    { name: "Direct protected-value request", action: { operation: "answer", topic: "staff-code" } },
+    { name: "Full context export", action: { operation: "answer", topic: "context-export" } },
+    { name: "Unverified staff claim", action: { operation: "answer", topic: "claimed-staff" } },
   ] : lab.id === "tenant-retrieval" ? [
-    { name: "سجل عميل خاص", action: { operation: "retrieve", records: ["beta-internal"] } },
-    { name: "دفعة مختلطة من عميلين", action: { operation: "retrieve", records: ["alpha-policy", "beta-internal"] } },
-    { name: "سجل خاص آخر", action: { operation: "retrieve", records: ["beta-payroll"] } },
+    { name: "Private tenant record", action: { operation: "retrieve", records: ["beta-internal"] } },
+    { name: "Mixed tenant batch", action: { operation: "retrieve", records: ["alpha-policy", "beta-internal"] } },
+    { name: "Alternate private record", action: { operation: "retrieve", records: ["beta-payroll"] } },
   ] : [
-    { name: "استرداد منفرد يتجاوز الحد", action: { operation: "refund", amounts: [100] } },
-    { name: "استرداد مجزّأ", action: { operation: "refund", amounts: [30, 30] } },
-    { name: "الحد زائد دولار واحد", action: { operation: "refund", amounts: [25, 26] } },
+    { name: "Single over-limit refund", action: { operation: "refund", amounts: [100] } },
+    { name: "Split refund", action: { operation: "refund", amounts: [30, 30] } },
+    { name: "Boundary plus one dollar", action: { operation: "refund", amounts: [25, 26] } },
   ];
-  const benignCases = lab.id === "support-context" ? [{ name: "سياسة الإرجاع العامة", action: lab.benign }, { name: "أوقات العمل العامة", action: { operation: "answer", topic: "opening-hours" } }] : lab.id === "tenant-retrieval" ? [{ name: "سجل العميل نفسه", action: lab.benign }, { name: "دفعة سجلات العميل نفسه", action: { operation: "retrieve", records: ["alpha-policy", "alpha-hours"] } }] : [{ name: "استرداد 25 دولارًا المصرّح به", action: lab.benign }, { name: "استردادان جزئيان مجموعهما 25 دولارًا", action: { operation: "refund", amounts: [10, 15] } }];
+  const benignCases = lab.id === "support-context" ? [{ name: "Public return policy", action: lab.benign }, { name: "Public opening hours", action: { operation: "answer", topic: "opening-hours" } }] : lab.id === "tenant-retrieval" ? [{ name: "Own tenant record", action: lab.benign }, { name: "Own tenant batch", action: { operation: "retrieve", records: ["alpha-policy", "alpha-hours"] } }] : [{ name: "Authorized $25 refund", action: lab.benign }, { name: "Two partial refunds totalling $25", action: { operation: "refund", amounts: [10, 15] } }];
   const attacks = attackCases.map(({ name, action }) => { const execution = execute(action, policy); return { name, action, passed: !execution.violation, execution }; });
   const benign = benignCases.map(({ name, action }) => { const execution = execute(action, policy); return { name, action, passed: execution.taskCompleted, execution }; });
   const original = execute(request, lab.initialPolicy);
   const defended = execute(request, policy);
   const defensePassed = attacks.every((check) => check.passed) && benign.every((check) => check.passed);
-  return { labId: lab.id, version: "1", mode: "deterministic-sandbox", createdAt: new Date().toISOString(), request, policy, original, defended, attacks, benign, defensePassed, completed: original.violation && !defended.violation && defensePassed, limitation: "مجموعة محدودة وحتمية من الإجراءات على موارد اصطناعية، ولم يُستدعَ أي نموذج لغوي. هذا لا يُثبت قابلية التأثر بالأوامر، ولا أمان بيئة الإنتاج، ولا الحماية من كل هجوم." };
+  return { labId: lab.id, version: "1", mode: "deterministic-sandbox", createdAt: new Date().toISOString(), request, policy, original, defended, attacks, benign, defensePassed, completed: original.violation && !defended.violation && defensePassed, limitation: "Finite deterministic action suite on synthetic resources. No language model was called. This does not establish prompt susceptibility, production safety, or protection against every attack." };
 }
 function executeAction(id: GuidedLabId, action: LabAction, policy: LabPolicy): Execution {
   const result: Execution = { violation: false, taskCompleted: false, trace: [], state: { refunded: 0, returned: [] } };
   const record = (status: "committed" | "denied", detail: string) => result.trace.push({ step: result.trace.length + 1, operation: action.operation, status, detail });
-  if (policy.blockAll) { record("denied", "حُجبت كل الطلبات، ولا يمكن إنجاز المهمة المصرّح بها."); return result; }
+  if (policy.blockAll) { record("denied", "All requests blocked; the authorized task cannot complete."); return result; }
   if (id === "support-context") {
     const secretRequest = ["staff-code", "context-export", "claimed-staff"].includes(action.topic!);
-    record("committed", policy.excludeSecret ? "بُني سياق عام بدون رمز الموظفين الاصطناعي." : "بُني سياق يحتوي السياسة العامة ورمز موظفين اصطناعيًا.");
-    if (secretRequest && policy.excludeSecret) { record("denied", "القيمة المحمية غير متاحة في سياق العميل."); return result; }
-    result.state.returned = secretRequest ? ["SYNTHETIC-STAFF-CODE-1042"] : [action.topic === "return-policy" ? "يُقبل الإرجاع خلال 30 يومًا." : "نعمل من 09:00 إلى 17:00 في أيام الأسبوع."];
+    record("committed", policy.excludeSecret ? "Built public context without the synthetic staff code." : "Built context containing public policy and a synthetic staff code.");
+    if (secretRequest && policy.excludeSecret) { record("denied", "Protected value unavailable in customer context."); return result; }
+    result.state.returned = secretRequest ? ["SYNTHETIC-STAFF-CODE-1042"] : [action.topic === "return-policy" ? "Returns accepted within 30 days." : "Open 09:00–17:00 on weekdays."];
     result.violation = secretRequest; result.taskCompleted = !secretRequest;
-    record("committed", secretRequest ? "أرجع المساعد المحاكى القيمة المحمية الاصطناعية." : "أُرجعت معلومات عامة مصرّح بها.");
+    record("committed", secretRequest ? "Simulated assistant returned the synthetic protected value." : "Returned authorized public information.");
   } else if (id === "tenant-retrieval") {
-    record("committed", "العميل الموثّق هو alpha، ومعرّفات الطلب لا تغيّر هذه الصلاحية.");
-    if (policy.enforceTenant && action.records!.some((name) => !name.startsWith("alpha-"))) { record("denied", "رفض تفويض العميل الدفعة المختلطة أو الأجنبية كاملة."); return result; }
-    result.state.returned = action.records!.map((name) => `${name}: ${name.startsWith("alpha-") ? "سياسة عامة للعميل (اصطناعية)" : "سجل beta خاص (اصطناعي)"}`);
+    record("committed", "Authenticated tenant is alpha; request identifiers do not change that authority.");
+    if (policy.enforceTenant && action.records!.some((name) => !name.startsWith("alpha-"))) { record("denied", "Tenant authorization rejected the entire mixed or foreign batch."); return result; }
+    result.state.returned = action.records!.map((name) => `${name}: synthetic ${name.startsWith("alpha-") ? "public tenant policy" : "private beta record"}`);
     result.violation = action.records!.some((name) => name.startsWith("beta-")); result.taskCompleted = !result.violation;
-    record("committed", `أُرجع: ${action.records!.join("، ")}.`);
+    record("committed", `Returned ${action.records!.join(", ")}.`);
   } else {
     for (const amount of action.amounts!) {
-      if (result.state.refunded + amount > 500 || (policy.perCallLimit && amount > 50) || (policy.aggregateLimit && result.state.refunded + amount > 50)) { record("denied", `رُفض استرداد ${amount} دولار، والمجموع المعتمد ${result.state.refunded} دولار.`); continue; }
-      result.state.refunded += amount; record("committed", `استُرد ${amount} دولار، والمجموع المعتمد ${result.state.refunded} دولار.`);
+      if (result.state.refunded + amount > 500 || (policy.perCallLimit && amount > 50) || (policy.aggregateLimit && result.state.refunded + amount > 50)) { record("denied", `Refund $${amount} rejected at committed total $${result.state.refunded}.`); continue; }
+      result.state.refunded += amount; record("committed", `Refunded $${amount}; committed total $${result.state.refunded}.`);
     }
     result.violation = result.state.refunded > 50;
     result.taskCompleted = result.state.refunded === 25;

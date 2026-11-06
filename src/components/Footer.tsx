@@ -7,32 +7,32 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8 py-12">
         <div className="platform-footer-grid">
           <div>
-            <h2 className="brand-title text-lg">{BRAND.name} <span className="text-emerald-400">· {BRAND.vault}</span></h2>
-            <p>دروس عربية في أمن الذكاء الاصطناعي ومختبرات اصطناعية آمنة. افهم الحدّ، وابنِ دفاعًا فعّالًا، واحتفظ بالدليل.</p>
-            <p className="mt-3">{BRAND.owner} · <a href={`mailto:${BRAND.ownerEmail}`} className="ltr inline-block underline underline-offset-4">{BRAND.ownerEmail}</a></p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={BRAND.logo} alt={`${BRAND.nameAr} · ${BRAND.name} · ${BRAND.university}`} className="footer-logo" />
+            <p className="mt-4">AI security lessons and synthetic labs. Learn the boundary, build a useful defense, and retain the evidence.</p>
           </div>
-          <nav aria-label="مصادر التعلّم">
-            <strong>استكشف</strong>
-            <Link href="/learn">مسار التعلّم</Link>
-            <Link href="/challenges?track=llm">خزنة النماذج</Link>
-            <Link href="/agentic">مختبر الوكلاء</Link>
-            <Link href="/challenges?view=labs">كل المختبرات والدفاعات الموجّهة</Link>
-            <Link href="/research">الأبحاث</Link>
-            <Link href="/community">ملاحظات المجتمع</Link>
-            <Link href="/leaderboard">المتصدرون</Link>
+          <nav aria-label="Learning resources">
+            <strong>Explore</strong>
+            <Link href="/learn">Learning path</Link>
+            <Link href="/challenges?track=llm">LLM CTF</Link>
+            <Link href="/agentic">Agentic CTF</Link>
+            <Link href="/challenges?view=labs">All labs & guided defenses</Link>
+            <Link href="/research">Research</Link>
+            <Link href="/community">Community notes</Link>
+            <Link href="/leaderboard">Leaderboard</Link>
           </nav>
-          <nav aria-label="معلومات المنصة">
-            <strong>عن المنصة</strong>
-            <Link href="/docs">كيف يعمل المختبر</Link>
-            <Link href="/docs#about">من نحن</Link>
-            <Link href="/privacy">البيانات والخصوصية</Link>
-            <Link href="/progress">سجل تعلّمك</Link>
-            <Link href="/aisywlc">دفعة AISYWLC</Link>
+          <nav aria-label="Platform information">
+            <strong>Platform</strong>
+            <Link href="/docs">How the lab works</Link>
+            <Link href="/docs#about">About</Link>
+            <Link href="/privacy">Data handling & privacy</Link>
+            <Link href="/progress">Your learning record</Link>
+            <Link href="/aisywlc">AISYWLC cohort</Link>
           </nav>
         </div>
         <div className="platform-footer-bottom">
-          <span>© {new Date().getFullYear()} {BRAND.owner}</span>
-          <a href={`mailto:${BRAND.ownerEmail}`} className="ltr inline-block">{BRAND.ownerEmail}</a>
+          <span>© {new Date().getFullYear()} {BRAND.owner} · {BRAND.university}</span>
+          <a href={`mailto:${BRAND.ownerEmail}`}>{BRAND.ownerEmail}</a>
         </div>
       </div>
     </footer>

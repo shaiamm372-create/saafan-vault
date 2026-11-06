@@ -31,9 +31,9 @@ describe("CHALLENGES dataset", () => {
     const intentDrift = CHALLENGES.find((c) => c.id === "level-3-intent-drift");
     const multiVector = CHALLENGES.find((c) => c.id === "level-5-multi-vector");
 
-    expect(intentDrift?.goal).toContain("3 رسائل أو أكثر");
+    expect(intentDrift?.goal).toContain("3+ messages");
     expect(intentDrift?.isMultiTurn).toBe(true);
-    expect(multiVector?.goal).toContain("أولًا اكسر النطاق");
+    expect(multiVector?.goal).toContain("first break scope");
     expect(multiVector?.isMultiTurn).toBe(true);
   });
 

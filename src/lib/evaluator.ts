@@ -4,8 +4,6 @@
  */
 import { AttackResult, Challenge, ConversationMessage } from "@/types";
 import { getAIBackend, PatternMatchingBackend, BackendMessage } from "./ai-backend";
-import { arAttackType } from "./i18n/ar";
-import { arGrader } from "./i18n/grader-ar";
 
 // Re-export client-safe metadata so existing imports still resolve
 export { ATTACK_TYPE_INFO, computeAttackSpans, detectAttackType } from "./attack-metadata";
@@ -65,11 +63,11 @@ export async function evaluateAttack(
     aiResponse: result.response,
     attackType: result.detectedAttackType,
     feedback: result.detectedAttackType
-      ? `رُصدت محاولة ${arAttackType(result.detectedAttackType).name}، وصمد النظام. جرّب محورًا مختلفًا.`
-      : "حافظ النظام على قيوده. حلّل تعليمات النظام بعناية أكبر.",
+      ? `${result.detectedAttackType.replace(/-/g, " ")} attempt detected — the system held. Try a different vector.`
+      : "The system maintained its constraints. Analyze the system prompt more carefully.",
     explanation: !meetsTurnRequirement
-      ? `يتطلب هذا التحدي ${minimumUserTurns} رسائل منك على الأقل، وهذه رسالتك رقم ${userTurnCount}.`
-      : arGrader(result.explanation),
+      ? `This challenge requires at least ${minimumUserTurns} user messages; this was turn ${userTurnCount}.`
+      : result.explanation,
     backendName: backend.name,
     isLiveBackend: backend.isLive,
   };

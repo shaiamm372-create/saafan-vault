@@ -6,7 +6,6 @@ import { CommunityAttack, AttackType } from "@/types";
 import { ATTACK_TYPE_INFO } from "@/lib/attack-metadata";
 import { CHALLENGES } from "@/lib/challenges";
 import { formatDate, cn } from "@/lib/utils";
-import { arAttackType } from "@/lib/i18n/ar";
 
 type SortMode = "votes" | "recent" | "featured";
 
@@ -80,9 +79,9 @@ export default function CommunityPage() {
   }
 
   const SORT_OPTIONS: Array<{ id: SortMode; label: string; icon: React.ReactNode }> = [
-    { id: "votes", label: "الأعلى تصويتًا", icon: <ThumbsUp className="h-3.5 w-3.5" /> },
-    { id: "recent", label: "الأحدث", icon: <Clock className="h-3.5 w-3.5" /> },
-    { id: "featured", label: "المميّزة", icon: <Star className="h-3.5 w-3.5" /> },
+    { id: "votes", label: "Top Voted", icon: <ThumbsUp className="h-3.5 w-3.5" /> },
+    { id: "recent", label: "Most Recent", icon: <Clock className="h-3.5 w-3.5" /> },
+    { id: "featured", label: "Featured", icon: <Star className="h-3.5 w-3.5" /> },
   ];
 
   return (
@@ -94,11 +93,11 @@ export default function CommunityPage() {
           <div>
             <div className="flex items-center gap-2 text-purple-400 text-sm font-semibold mb-3">
               <Users className="h-4 w-4" />
-              لوحة هجمات المجتمع
+              COMMUNITY ATTACK BOARD
             </div>
-            <h1 className="text-4xl font-extrabold text-white mb-2">ملاحظات تعلّم من المجتمع</h1>
+            <h1 className="text-4xl font-extrabold text-white mb-2">Community learning notes</h1>
             <p className="text-slate-400 max-w-xl">
-              تصفّح الأوامر التي شاركها المجتمع. المشاركات ليست نجاحات متحققًا منها بشكل مستقل، فاستخدمها كأفكار تبحثها داخل مختبر مصرّح به.
+              Browse community-submitted prompts. Submissions are not independently verified successes; use them as ideas to investigate in an authorized lab.
             </p>
           </div>
           <button
@@ -106,7 +105,7 @@ export default function CommunityPage() {
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold text-sm transition-all flex-shrink-0"
           >
             <Plus className="h-4 w-4" />
-            شارك ملاحظة تعلّم
+            Submit a learning note
           </button>
         </div>
 
@@ -120,7 +119,7 @@ export default function CommunityPage() {
                 onClick={() => setSort(opt.id)}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
-                  sort === opt.id ? "bg-[#241f1a] text-white shadow" : "text-slate-400 hover:text-white"
+                  sort === opt.id ? "bg-[#11262e] text-white shadow" : "text-slate-400 hover:text-white"
                 )}
               >
                 {opt.icon}
@@ -135,11 +134,11 @@ export default function CommunityPage() {
               onClick={() => setFilterType("")}
               className={cn(
                 "flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors",
-                filterType === "" ? "bg-[#241f1a] text-white" : "text-slate-400 hover:text-white"
+                filterType === "" ? "bg-[#11262e] text-white" : "text-slate-400 hover:text-white"
               )}
             >
               <Filter className="h-3 w-3" />
-              كل الأنواع
+              All Types
             </button>
             {ATTACK_TYPES.map((type) => {
               const info = ATTACK_TYPE_INFO[type];
@@ -149,11 +148,11 @@ export default function CommunityPage() {
                   onClick={() => setFilterType(filterType === type ? "" : type)}
                   className={cn(
                     "flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors",
-                    filterType === type ? `bg-[#241f1a] ${info.color}` : "text-slate-400 hover:text-white"
+                    filterType === type ? `bg-[#11262e] ${info.color}` : "text-slate-400 hover:text-white"
                   )}
                 >
                   <span>{info.icon}</span>
-                  {arAttackType(type).name}
+                  {info.name}
                 </button>
               );
             })}
@@ -164,14 +163,14 @@ export default function CommunityPage() {
         {loading ? (
           <div className="flex flex-col gap-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="rounded-xl border border-slate-700 bg-[#241f1a] p-5 animate-pulse h-36" />
+              <div key={i} className="rounded-xl border border-slate-700 bg-[#11262e] p-5 animate-pulse h-36" />
             ))}
           </div>
         ) : attacks.length === 0 ? (
-          <div className="rounded-xl border border-slate-700 bg-[#241f1a] p-12 text-center">
+          <div className="rounded-xl border border-slate-700 bg-[#11262e] p-12 text-center">
             <div className="text-4xl mb-3">🎯</div>
-            <div className="text-white font-bold mb-1">لا توجد هجمات لهذا التصنيف بعد</div>
-            <p className="text-slate-400 text-sm">شارك فكرة مختبر اصطناعية، بدون بيانات اعتماد أو أدلة خاصة.</p>
+            <div className="text-white font-bold mb-1">No attacks yet for this filter</div>
+            <p className="text-slate-400 text-sm">Share a synthetic lab idea without credentials or private evidence.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -182,7 +181,7 @@ export default function CommunityPage() {
                 <div
                   key={attack.id}
                   className={cn(
-                    "rounded-xl border bg-[#241f1a] p-5 transition-all",
+                    "rounded-xl border bg-[#11262e] p-5 transition-all",
                     attack.featured
                       ? "border-purple-500/40 bg-purple-500/5"
                       : "border-slate-700 hover:border-slate-600"
@@ -207,14 +206,14 @@ export default function CommunityPage() {
                       {/* Meta row */}
                       <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <span className={cn("text-xs font-semibold", info?.color)}>
-                          {info?.icon} {arAttackType(attack.attackType).name}
+                          {info?.icon} {info?.name}
                         </span>
-                        <span className="text-xs text-slate-500">←</span>
+                        <span className="text-xs text-slate-500">→</span>
                         <span className="text-xs text-slate-400 font-medium">{attack.challengeTitle}</span>
                         {attack.featured && (
                           <span className="flex items-center gap-1 text-xs font-bold text-purple-400 bg-purple-400/10 border border-purple-400/20 rounded-full px-2 py-0.5">
                             <Flame className="h-3 w-3" />
-                            {attack.label ?? "مميّزة"}
+                            {attack.label ?? "Featured"}
                           </span>
                         )}
                         {attack.label && !attack.featured && (
@@ -222,7 +221,7 @@ export default function CommunityPage() {
                             {attack.label}
                           </span>
                         )}
-                        <span className="ms-auto text-xs text-slate-600">
+                        <span className="ml-auto text-xs text-slate-600">
                           {formatDate(attack.submittedAt)}
                         </span>
                       </div>
@@ -242,9 +241,9 @@ export default function CommunityPage() {
         {/* Submit modal */}
         {showSubmit && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-[#241f1a] shadow-2xl">
+            <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-[#11262e] shadow-2xl">
               <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700">
-                <h2 className="font-bold text-white">شارك هجومًا ناجحًا</h2>
+                <h2 className="font-bold text-white">Submit a Successful Attack</h2>
                 <button onClick={() => setShowSubmit(false)} className="text-slate-500 hover:text-white transition-colors">
                   <X className="h-5 w-5" />
                 </button>
@@ -252,7 +251,7 @@ export default function CommunityPage() {
               <form onSubmit={handleSubmit} className="p-5 space-y-4">
                 <div>
                   <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide block mb-1.5">
-                    التحدي
+                    Challenge
                   </label>
                   <select
                     value={form.challengeId}
@@ -260,17 +259,17 @@ export default function CommunityPage() {
                     required
                     className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50"
                   >
-                    <option value="">اختر التحدي...</option>
+                    <option value="">Select challenge...</option>
                     {CHALLENGES.map((c) => (
                       <option key={c.id} value={c.id}>
-                        المستوى {c.level}: {c.title}
+                        Level {c.level}: {c.title}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide block mb-1.5">
-                    نوع الهجوم
+                    Attack Type
                   </label>
                   <select
                     value={form.attackType}
@@ -278,17 +277,17 @@ export default function CommunityPage() {
                     required
                     className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50"
                   >
-                    <option value="">اختر نوع الهجوم...</option>
+                    <option value="">Select attack type...</option>
                     {ATTACK_TYPES.map((type) => (
                       <option key={type} value={type}>
-                        {ATTACK_TYPE_INFO[type].icon} {arAttackType(type).name}
+                        {ATTACK_TYPE_INFO[type].icon} {ATTACK_TYPE_INFO[type].name}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide block mb-1.5">
-                    أمر الهجوم الناجح (بالإنجليزية)
+                    Your Successful Attack Prompt
                   </label>
                   <textarea
                     value={form.prompt}
@@ -299,20 +298,20 @@ export default function CommunityPage() {
                     maxLength={2000}
                     className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono placeholder-slate-600 resize-none focus:outline-none focus:border-emerald-500/50"
                   />
-                  <div className="text-xs text-slate-600 mt-1 text-end">{form.prompt.length}/2000</div>
+                  <div className="text-xs text-slate-600 mt-1 text-right">{form.prompt.length}/2000</div>
                 </div>
                 <div className="text-xs text-slate-500 bg-slate-900 rounded-lg p-3 border border-slate-700">
-                  ⚠️ شارك فقط الأوامر التي نجحت فعلًا، فالمجتمع يعتمد على دقة المشاركات.
+                  ⚠️ Only submit prompts that genuinely succeeded. The community relies on accurate submissions.
                 </div>
                 <div className="flex gap-3 pt-1">
                   <button type="button" onClick={() => setShowSubmit(false)}
                     className="flex-1 py-2 rounded-lg border border-slate-700 text-slate-400 text-sm font-medium hover:text-white transition-colors">
-                    إلغاء
+                    Cancel
                   </button>
                   <button type="submit" disabled={submitting}
                     className="flex-1 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-900 text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50">
-                    {submitting ? <><div className="h-4 w-4 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />جارٍ الإرسال...</>
-                      : <><Send className="h-4 w-4" />إرسال</>}
+                    {submitting ? <><div className="h-4 w-4 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />Submitting...</>
+                      : <><Send className="h-4 w-4" />Submit</>}
                   </button>
                 </div>
               </form>

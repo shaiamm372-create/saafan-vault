@@ -31,7 +31,8 @@ import IsolatedHtmlSandboxView from "./IsolatedHtmlSandboxView";
 import CopyTextButton from "./CopyTextButton";
 import LlmKeySettings from "./LlmKeySettings";
 import { SITE_URL } from "@/lib/brand";
-import { arAttackType, arDifficulty } from "@/lib/i18n/ar";
+import { CHALLENGES_AR } from "@/lib/i18n/challenges-ar";
+import ArabicText from "./ArabicText";
 
 interface Props {
   challenge: Challenge;
@@ -95,9 +96,13 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
   const cohortSignInNeeded = contestOpen && !cohortPlayer.loading && !cohortHandle;
 
   const diff = DIFFICULTY_CONFIG[challenge.difficulty];
+  // Arabic objective and hints for players; the English originals stay in the data for grading.
+  const arabic = CHALLENGES_AR[challenge.id];
+  const goalAr = arabic?.goal ?? challenge.goal;
+  const hintsAr = arabic?.hints ?? challenge.hints;
   const isMultiTurn = challenge.isMultiTurn ?? false;
   const solved = result?.success === true;
-  const persona = PERSONA_NAMES[challenge.id] ?? "المساعد";
+  const persona = PERSONA_NAMES[challenge.id] ?? "AI Assistant";
   const alreadySolved = loaded && isSolved(challenge.id);
   const winningAttempt = [...attempts].reverse().find((attempt) => attempt.success);
   const successfulExchange = result?.success && winningAttempt
@@ -153,7 +158,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
       sessionExpiryRef.current = data.expiresAt;
       startTimer();
       setLlmSettings(null);
-    } catch (error) { setModeError(error instanceof Error ? error.message : "تعذّر بدء التشغيل المحتسب."); }
+    } catch (error) { setModeError(error instanceof Error ? error.message : "Could not start ranked execution."); }
     finally { setIsSubmitting(false); }
   }
 
@@ -186,9 +191,9 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
             success: false,
             aiResponse: "",
             attackType: null,
-            feedback: err instanceof Error ? err.message : "فشل التقييم المباشر.",
+            feedback: err instanceof Error ? err.message : "Live grading failed.",
             explanation:
-              "فشل التقييم المباشر بمفتاحك. تحقّق من المفتاح والمزوّد في إعدادات \"التقييم بمفتاحك\"، أو أوقفه لاستخدام المقيّم الافتراضي.",
+              "Live grading with your key failed — check the key and provider under “LLM grading”, or turn it off to use the default grader.",
             isLiveBackend: true,
           };
         }
@@ -210,7 +215,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
           }),
         });
         data = await res.json();
-        if (!res.ok) throw new Error((data as AttackResult & { error?: string }).error ?? "فشل التنفيذ.");
+        if (!res.ok) throw new Error((data as AttackResult & { error?: string }).error ?? "Execution failed.");
       }
       if (active) data.pointsEarned = 0;
       setResult(data);
@@ -235,7 +240,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
         setCohortCounted(data.cohortRecorded === true);
       }
     } catch (error) {
-      setModeError(error instanceof Error ? error.message : "فشل التنفيذ. أعد المحاولة.");
+      setModeError(error instanceof Error ? error.message : "Execution failed. Please retry.");
     } finally {
       setIsSubmitting(false);
       setPrompt("");
@@ -263,7 +268,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
           challengeTitle={challenge.title}
           challengeLevel={challenge.level}
           pointsEarned={result.scoreRecorded ? result.pointsEarned ?? 0 : 0}
-          executionLabel={sessionId ? "تقييم مباشر على الخادم" : result.isLiveBackend ? "مباشر بمفتاحك · غير محتسب" : "تدريب بالمحاكاة · غير محتسب"}
+          executionLabel={sessionId ? "Server-live evaluation" : result.isLiveBackend ? "Viewer-key live · unranked" : "Simulated practice · unranked"}
           totalPoints={CHALLENGES.filter((c) => solvedIds.includes(c.id)).reduce((sum, c) => sum + c.basePoints, 0)}
           solvedIds={solvedIds}
           username={player?.username}
@@ -283,17 +288,17 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
         <div className="mx-auto max-w-7xl flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3 flex-wrap">
             <Link href="/challenges?track=llm" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">
-              → مهام خزنة النماذج
+              ← LLM missions
             </Link>
             <span className="text-slate-700">/</span>
-            <span className="text-sm text-slate-400">المستوى {challenge.level}</span>
+            <span className="text-sm text-slate-400">Level {challenge.level}</span>
             <h1 className="game-title text-white font-bold">{challenge.title}</h1>
             <span className={cn("px-2 py-0.5 rounded text-xs font-semibold border", diff.bg, diff.color)}>
-              {arDifficulty(challenge.difficulty)}
+              {diff.label}
             </span>
             {isMultiTurn && (
               <span className="px-2 py-0.5 rounded text-xs font-semibold border border-blue-400/30 bg-blue-400/10 text-blue-400">
-                محادثة متعددة الرسائل
+                Multi-turn
               </span>
             )}
             {challenge.level >= 6 && (
@@ -303,7 +308,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
             )}
             {alreadySolved && (
               <span className="px-2 py-0.5 rounded text-xs font-semibold border border-emerald-400/30 bg-emerald-400/10 text-emerald-400">
-                ✓ محلولة
+                ✓ Solved
               </span>
             )}
           </div>
@@ -326,10 +331,10 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                   ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
                   : "bg-slate-800 border-slate-700 text-slate-400 hover:text-emerald-400 hover:border-emerald-500/40"
               )}
-              title="قيّم بمفتاح OpenAI أو Anthropic الخاص بك، ويبقى المفتاح في متصفحك"
+              title="Grade with your own OpenAI/Anthropic key — stays in your browser"
             >
               <Bot className="h-3.5 w-3.5" />
-              {sessionId ? "مباشر على الخادم" : isLlmGradingActive(llmSettings) ? "مباشر بمفتاحك" : "التقييم بمفتاحك"}
+              {sessionId ? "Server live" : isLlmGradingActive(llmSettings) ? "Viewer-key live" : "Viewer-key settings"}
             </button>
             {/* Defender toggle */}
             <button
@@ -344,18 +349,18 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
             >
               {showDefense ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               <Shield className="h-3.5 w-3.5" />
-              المدافع
+              Defender
             </button>
             <div className={cn("flex items-center gap-1.5 font-mono font-bold text-lg", timerColor)}>
               <Clock className="h-4 w-4" />
-              {sessionId ? formatTime(timeLeft) : <span className="font-sans text-base">بلا توقيت</span>}
-              {sessionId && !timerStarted && <span className="font-sans text-[10px] font-normal text-slate-400">يبدأ عند الإرسال</span>}
+              {sessionId ? formatTime(timeLeft) : "Untimed"}
+              {sessionId && !timerStarted && <span className="font-sans text-[10px] font-normal text-slate-400">starts on submit</span>}
             </div>
             <div className="text-sm text-slate-400">
-              <span className="text-white font-semibold">{attempts.length}</span> محاولة
+              <span className="text-white font-semibold">{attempts.length}</span> attempt{attempts.length !== 1 ? "s" : ""}
             </div>
             <div className="text-sm text-slate-400">
-              <span className="text-white font-semibold">{challenge.basePoints}</span> نقطة
+              <span className="text-white font-semibold">{challenge.basePoints}</span> pts
             </div>
           </div>
         </div>
@@ -366,7 +371,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
         <div className="border-b border-yellow-400/20 bg-yellow-400/5 px-4 py-3">
           <div className="mx-auto max-w-7xl text-center text-sm">
             <span className="text-yellow-400 font-bold">@{challengerName}</span>
-            <span className="text-slate-400"> يتحدّاك أن تتجاوز المستوى {challenge.level}. هل تستطيع؟ </span>
+            <span className="text-slate-400"> challenged you to beat Level {challenge.level}. Can you? </span>
             <span className="text-yellow-400">⚔️</span>
           </div>
         </div>
@@ -376,33 +381,33 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
         <div className="border-b border-amber-400/30 bg-amber-400/10 px-4 py-3">
           <div className="mx-auto max-w-7xl text-center text-sm text-amber-200">
             {cohortPlayer.user
-              ? "لم يكتمل تسجيلك في AISYWLC، لذا لن تُحتسب حلولك في المسابقة. "
-              : "لم تسجّل الدخول، لذا لن تُحتسب حلولك في مسابقة AISYWLC. "}
-            <Link href="/aisywlc" className="font-semibold underline">{cohortPlayer.user ? "أكمل التسجيل" : "سجّل الدخول بـ Google"}</Link>
+              ? "Your AISYWLC registration did not finish, so solves won't count toward the contest. "
+              : "You're not signed in, so solves won't count toward the AISYWLC contest. "}
+            <Link href="/aisywlc" className="font-semibold underline">{cohortPlayer.user ? "Fix registration" : "Sign in with Google"}</Link>
           </div>
         </div>
       )}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-        <div className="mission-objective mb-6 rounded-2xl border border-emerald-500/30 bg-[#241f1a] p-4 sm:p-5">
+        <div className="mission-objective mb-6 rounded-2xl border border-emerald-500/30 bg-[#11262e] p-4 sm:p-5">
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-emerald-400">
-            <span className="objective-beacon" aria-hidden="true"><Shield className="h-4 w-4" /></span> هدف المهمة
+            <span className="objective-beacon" aria-hidden="true"><Shield className="h-4 w-4" /></span> MISSION OBJECTIVE <span className="font-arabic font-normal text-emerald-300/80">· هدف المهمة</span>
           </div>
-          <p className="text-sm leading-relaxed text-white">{challenge.goal}</p>
+          <p dir="rtl" lang="ar" className="font-arabic text-base leading-loose text-white"><ArabicText text={goalAr} /></p>
           {challenge.level === 1 && (
             <p className="mt-3 border-t border-slate-700 pt-3 text-xs leading-relaxed text-slate-400">
-              <span className="font-semibold text-emerald-300">مهمتك الأولى:</span> اكتب أمرًا (بالإنجليزية) يحاول إخراج المعلّم عن موضوعه، ثم أرسله. شاهد الرد وسبب نجاحه أو فشله. التدريب بلا توقيت، أما الوضع المحتسب فيعدّ تنازليًا حتى انتهاء جلسة الخادم.
+              <span className="font-semibold text-emerald-300">First mission:</span> Write a prompt that tries to pull the tutor off topic, then submit. See the response and why it worked or failed. Practice is untimed. Ranked mode counts down from the server session’s expiry.
             </p>
           )}
           <p className="mt-3 text-xs text-slate-500">
-            {sessionId ? "نموذج مباشر محتسب · جلسة خادم مع تسجيل الدخول · نقاط أساسية فقط · تلميحات مجانية. تنتهي الجلسة بعد 20 دقيقة." : isLlmGradingActive(llmSettings) ? "نموذج مباشر بمفتاحك · غير محتسب · تذهب الطلبات مباشرة إلى مزوّدك." : "تدريب بالمحاكاة · بلا توقيت · غير محتسب. الحل بالمحاكاة ليس دليلًا على اختراق نموذج حقيقي."}
+            {sessionId ? "Ranked live model · signed-in server session · base points only · free hints. Session expires after 20 minutes." : isLlmGradingActive(llmSettings) ? "Viewer-key live model · unranked · requests go directly to your provider." : "Simulated practice · untimed · unranked. A simulated solve is not evidence of model compromise."}
           </p>
         </div>
         <div className="mb-6 flex flex-wrap items-center gap-3">
-          <Link href="/learn/trust-boundaries" className="lab-button lab-button-secondary">اقرأ الدرس التأسيسي</Link>
-          <button className="lab-button lab-button-secondary" disabled={!rankedAvailable || isSubmitting} onClick={() => void startRanked()}>{sessionId ? "ابدأ جلسة محتسبة جديدة" : rankedAvailable ? cohortPlayer.user ? "ابدأ جلسة مباشرة محتسبة" : "سجّل الدخول للعب المحتسب" : "اللعب المحتسب غير متاح"}</button>
-          {sessionId && <button className="lab-button lab-button-secondary" disabled={isSubmitting} onClick={() => { stopTimer(); setSessionId(null); setGameOver(false); setResult(null); setConversation([]); }}>عُد إلى التدريب بلا توقيت</button>}
-          <Link href="/docs#grading" className="text-xs text-slate-400 underline">كيف يتم التقييم</Link>
+          <Link href="/learn/trust-boundaries" className="lab-button lab-button-secondary">Read the foundation lesson</Link>
+          <button className="lab-button lab-button-secondary" disabled={!rankedAvailable || isSubmitting} onClick={() => void startRanked()}>{sessionId ? "Start fresh ranked session" : rankedAvailable ? cohortPlayer.user ? "Start ranked live session" : "Sign in for ranked live" : "Ranked live unavailable"}</button>
+          {sessionId && <button className="lab-button lab-button-secondary" disabled={isSubmitting} onClick={() => { stopTimer(); setSessionId(null); setGameOver(false); setResult(null); setConversation([]); }}>Return to untimed practice</button>}
+          <Link href="/docs#grading" className="text-xs text-slate-400 underline">How grading works</Link>
         </div>
         {modeError && <p role="alert" className="mb-6 text-sm text-amber-300">{modeError}</p>}
         <div className={cn("grid gap-6", showDefense ? "xl:grid-cols-3 lg:grid-cols-2" : "lg:grid-cols-5")}>
@@ -411,7 +416,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
           <div className={cn("order-2 flex flex-col gap-4 lg:order-1", showDefense ? "" : "lg:col-span-2")}>
 
             {/* System prompt */}
-            <div className="game-panel rounded-2xl border border-slate-700 bg-[#241f1a] p-5">
+            <div className="game-panel rounded-2xl border border-slate-700 bg-[#11262e] p-5">
               <button
                 aria-expanded={showSystemPrompt}
                 onClick={() => setShowSystemPrompt(!showSystemPrompt)}
@@ -419,7 +424,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
               >
                 <span className="flex items-center gap-2">
                   <Terminal className="h-4 w-4" />
-                  تعليمات النظام (للذكاء المستهدف)
+                  SYSTEM PROMPT (Target AI)
                 </span>
                 {showSystemPrompt ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </button>
@@ -429,13 +434,13 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                 </pre>
               )}
               {!showSystemPrompt && (
-                <p className="text-xs text-slate-500 mt-1">اضغط للكشف</p>
+                <p className="text-xs text-slate-500 mt-1">Click to reveal</p>
               )}
             </div>
 
             {/* Hints */}
             {challenge.hints.length > 0 && (
-              <div className="game-panel rounded-2xl border border-slate-700 bg-[#241f1a] p-5">
+              <div className="game-panel rounded-2xl border border-slate-700 bg-[#11262e] p-5">
                 <button
                   aria-expanded={showHints}
                   onClick={() => setShowHints(!showHints)}
@@ -443,7 +448,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                 >
                   <span className="flex items-center gap-2">
                     <Lightbulb className="h-4 w-4" />
-                    التلميحات (استخدمت {hintsUsed} من {challenge.hints.length})
+                    HINTS ({hintsUsed}/{challenge.hints.length} used)
                   </span>
                   {showHints ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
@@ -453,14 +458,14 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                       <div key={i}>
                         {revealedHints.includes(i) ? (
                           <div className="text-xs text-yellow-300 bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-2.5">
-                            💡 {hint}
+                            <span dir="rtl" lang="ar" className="font-arabic block text-sm leading-relaxed">💡 <ArabicText text={hintsAr[i] ?? hint} /></span>
                           </div>
                         ) : (
                           <button
                             onClick={() => revealHint(i)}
-                            className="w-full text-xs text-slate-400 bg-slate-800 hover:bg-slate-700 rounded-lg p-2.5 text-start border border-slate-700 transition-colors"
+                            className="w-full text-xs text-slate-400 bg-slate-800 hover:bg-slate-700 rounded-lg p-2.5 text-left border border-slate-700 transition-colors"
                           >
-                            اكشف التلميح {i + 1} <span className="text-slate-500">(مجانًا)</span>
+                            Reveal Hint {i + 1} <span className="text-slate-500">(free)</span>
                           </button>
                         )}
                       </div>
@@ -471,23 +476,23 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
             )}
 
             {/* Attack type card */}
-            <div className="game-panel rounded-2xl border border-slate-700 bg-[#241f1a] p-5">
+            <div className="game-panel rounded-2xl border border-slate-700 bg-[#11262e] p-5">
               <div className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">
-                فئة الهجوم المستهدفة
+                TARGET ATTACK CATEGORY
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-2xl">{ATTACK_TYPE_INFO[challenge.attackType]?.icon}</span>
                 <div>
                   <div className={cn("font-semibold text-sm", ATTACK_TYPE_INFO[challenge.attackType]?.color)}>
-                    {arAttackType(challenge.attackType).name}
+                    {ATTACK_TYPE_INFO[challenge.attackType]?.name}
                     {ATTACK_TYPE_INFO[challenge.attackType]?.owaspRef && (
-                      <span className="ms-2 text-xs text-slate-600 font-normal">
+                      <span className="ml-2 text-xs text-slate-600 font-normal">
                         {ATTACK_TYPE_INFO[challenge.attackType].owaspRef}
                       </span>
                     )}
                   </div>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    {arAttackType(challenge.attackType).description}
+                    {ATTACK_TYPE_INFO[challenge.attackType]?.description}
                   </p>
                 </div>
               </div>
@@ -495,7 +500,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
 
             {/* Attempt history */}
             {attempts.length > 0 && (
-              <div className="game-panel rounded-2xl border border-slate-700 bg-[#241f1a] p-5">
+              <div className="game-panel rounded-2xl border border-slate-700 bg-[#11262e] p-5">
                 <button
                   aria-expanded={showAttempts}
                   onClick={() => setShowAttempts(!showAttempts)}
@@ -503,12 +508,12 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                 >
                   <span className="flex items-center gap-2">
                     <Swords className="h-4 w-4" />
-                    سجل الهجمات ({attempts.length})
+                    Attack History ({attempts.length})
                   </span>
                   {showAttempts ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
                 {showAttempts && (
-                  <div className="mt-3 flex max-h-80 flex-col gap-2 overflow-y-auto pe-1">
+                  <div className="mt-3 flex max-h-80 flex-col gap-2 overflow-y-auto pr-1">
                     {[...attempts].reverse().map((a, i) => (
                       <div key={i} className={cn(
                         "rounded-lg p-2.5 text-xs",
@@ -519,9 +524,9 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                             ? <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-emerald-400" />
                             : <XCircle className="h-3.5 w-3.5 flex-shrink-0 text-red-400" />}
                           <span className="font-semibold text-slate-400">
-                            المحاولة {attempts.length - i}
+                            Attempt {attempts.length - i}
                           </span>
-                          <CopyTextButton text={a.prompt} label="انسخ الأمر" className="ms-auto" />
+                          <CopyTextButton text={a.prompt} label="Copy prompt" className="ml-auto" />
                         </div>
                         <pre className="select-text whitespace-pre-wrap break-words font-mono leading-relaxed text-slate-300">
                           {a.prompt}
@@ -544,12 +549,12 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                 <div className="flex items-center gap-3">
                   <CheckCircle2 className="h-6 w-6 text-emerald-400 flex-shrink-0" />
                   <div className="flex-1">
-                    <div className="font-bold text-emerald-400 text-lg">اخترقت المستوى {challenge.level}! 🎉</div>
+                    <div className="font-bold text-emerald-400 text-lg">Level {challenge.level} Cracked! 🎉</div>
                     <div className="text-sm text-emerald-300">{result?.feedback}</div>
                   </div>
-                  <div className="text-end">
-                    <div className="text-2xl font-bold text-emerald-400">{result?.pointsEarned ? `+${result.pointsEarned}` : sessionId ? "سُجّلت" : "غير محتسبة"}</div>
-                    <div className="text-xs text-slate-400">نقطة</div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-emerald-400">{result?.pointsEarned ? `+${result.pointsEarned}` : sessionId ? "Recorded" : "Unranked"}</div>
+                    <div className="text-xs text-slate-400">points</div>
                   </div>
                 </div>
 
@@ -559,9 +564,9 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                     <div>
                       <div className="mb-2 flex items-center justify-between gap-2">
                         <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          الأمر الناجح
+                          Successful prompt
                         </div>
-                        <CopyTextButton text={winningAttempt.prompt} label="انسخ الأمر" />
+                        <CopyTextButton text={winningAttempt.prompt} label="Copy prompt" />
                       </div>
                       <pre className="max-h-64 select-text overflow-auto whitespace-pre-wrap break-words rounded-md border border-slate-800 bg-slate-950/70 p-3 font-mono text-sm leading-relaxed text-slate-300">
                         {winningAttempt.prompt}
@@ -571,11 +576,11 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                     <div>
                       <div className="mb-2 flex items-center justify-between gap-2">
                         <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          رد الذكاء الاصطناعي كاملًا
+                          Full AI response
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          <CopyTextButton text={result.aiResponse} label="انسخ الرد" />
-                          <CopyTextButton text={successfulExchange} label="انسخ المحادثة" />
+                          <CopyTextButton text={result.aiResponse} label="Copy response" />
+                          <CopyTextButton text={successfulExchange} label="Copy exchange" />
                         </div>
                       </div>
                       <pre className="max-h-80 select-text overflow-auto whitespace-pre-wrap break-words rounded-md border border-slate-800 bg-slate-950/70 p-3 font-mono text-sm leading-relaxed text-slate-300">
@@ -597,14 +602,14 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                   <div className="flex items-center gap-2 text-xs text-slate-400 bg-slate-900/40 rounded-lg px-3 py-2">
                     <Trophy className="h-3.5 w-3.5 text-yellow-400" />
                     {cohortCounted
-                      ? <>احتُسبت في AISYWLC باسم <span className="text-white font-semibold">{cohortHandle}</span></>
-                      : <>سُجّلت نتيجة موثّقة باسم <span className="text-white font-semibold">{cohortHandle ?? player?.username}</span></>}
+                      ? <>Counted for AISYWLC as <span className="text-white font-semibold">{cohortHandle}</span></>
+                      : <>Verified score recorded as <span className="text-white font-semibold">{cohortHandle ?? player?.username}</span></>}
                   </div>
                 )}
                 {solved && contestOpen && !cohortCounted && (
                   <div className="flex items-center gap-2 text-xs text-amber-300 bg-amber-400/10 border border-amber-400/30 rounded-lg px-3 py-2">
                     <AlertTriangle className="h-3.5 w-3.5" />
-                    هذا الحل لم يُحتسب في AISYWLC. سجّل الدخول بـ Google من <Link href="/aisywlc" className="underline">صفحة AISYWLC</Link>، ثم حلّه مجددًا.
+                    This solve did NOT count for AISYWLC. Sign in with Google on the <Link href="/aisywlc" className="underline">AISYWLC page</Link>, then solve it again.
                   </div>
                 )}
 
@@ -615,7 +620,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                       href={`/challenges/${nextChallenge.id}`}
                       className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-semibold text-sm transition-colors"
                     >
-                      المستوى التالي: {nextChallenge.title}
+                      Next Level: {nextChallenge.title}
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   ) : (
@@ -624,7 +629,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                       className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold text-sm transition-colors"
                     >
                       <Trophy className="h-4 w-4" />
-                      لوحة المتصدرين
+                      View Leaderboard
                     </Link>
                   )}
                   <Link
@@ -632,18 +637,18 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                     className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-600 text-slate-300 hover:border-slate-500 hover:text-white text-sm transition-colors"
                   >
                     <LayoutGrid className="h-4 w-4" />
-                    كل مهام خزنة النماذج
+                    All LLM missions
                   </Link>
                   <button
                     onClick={() => setShowShareModal(true)}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 text-sm font-semibold transition-colors"
                   >
                     <Share2 className="h-4 w-4" />
-                    شارك النتيجة
+                    Share Result
                   </button>
                   <button
                     onClick={() => {
-                      const name = player?.username ?? "صديق";
+                      const name = player?.username ?? "someone";
                       const url = `${SITE_URL}/challenges/${challenge.id}?ref=${encodeURIComponent(name)}`;
                       navigator.clipboard.writeText(url);
                       setChallengeCopied(true);
@@ -651,7 +656,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                     }}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-yellow-400/40 bg-yellow-400/10 text-yellow-400 hover:bg-yellow-400/20 text-sm font-semibold transition-colors"
                   >
-                    ⚔️ {challengeCopied ? "تم نسخ الرابط!" : "تحدَّ صديقًا"}
+                    ⚔️ {challengeCopied ? "Link Copied!" : "Challenge a Friend"}
                   </button>
                 </div>
 
@@ -668,35 +673,35 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
               <div className="rounded-xl border border-red-500/40 bg-red-500/10 p-4">
                 <div className="flex items-center gap-2 text-red-400 font-bold mb-2">
                   <XCircle className="h-5 w-5" />
-                  انتهى مؤقت الجلسة.
+                  Session display clock expired.
                 </div>
-                <p className="text-sm text-red-300 mb-3">تنتهي جلسة الخادم بعد عشرين دقيقة من إنشائها. ابدأ جلسة جديدة أو عُد إلى التدريب بلا توقيت. انتهاء الوقت لا يعني أن الدفاع صمد.</p>
+                <p className="text-sm text-red-300 mb-3">The server session expires twenty minutes after creation. Start a fresh session or return to untimed practice. A timeout does not establish that a defense held.</p>
                 <button
                   onClick={() => window.location.reload()}
                   className="px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 text-sm font-semibold transition-colors"
                 >
-                  حاول مجددًا
+                  Try Again
                 </button>
               </div>
             )}
 
             {/* Latest failure feedback (non-multi-turn) */}
             {result && !result.success && !gameOver && !isMultiTurn && (
-              <div className="game-feedback rounded-2xl border border-red-500/30 bg-[#241f1a] p-5">
+              <div className="game-feedback rounded-2xl border border-red-500/30 bg-[#11262e] p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <XCircle className="h-4 w-4 text-red-400" />
-                  <span className="font-semibold text-red-400 text-sm">صمد الدفاع، واصل المحاولة</span>
+                  <span className="font-semibold text-red-400 text-sm">Defense Held — Keep trying</span>
                   {result.attackType && (
-                    <span className="ms-auto text-xs text-slate-400">
-                      المرصود: <span className={ATTACK_TYPE_INFO[result.attackType]?.color}>
-                        {arAttackType(result.attackType).name}
+                    <span className="ml-auto text-xs text-slate-400">
+                      Detected: <span className={ATTACK_TYPE_INFO[result.attackType]?.color}>
+                        {ATTACK_TYPE_INFO[result.attackType]?.name}
                       </span>
                     </span>
                   )}
                 </div>
                 <div className="rounded-lg bg-slate-900/60 p-3 font-mono text-sm text-slate-300 border border-slate-700 mb-3">
-                  <div className="text-xs text-slate-500 mb-1 font-sans">رد الذكاء الاصطناعي:</div>
-                  <div className="ltr whitespace-pre-wrap">{result.aiResponse}</div>
+                  <div className="text-xs text-slate-500 mb-1">AI Response:</div>
+                  {result.aiResponse}
                 </div>
                 <p className="text-xs text-slate-400">{result.feedback}</p>
               </div>
@@ -717,10 +722,10 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
             ) : (
               /* SINGLE-TURN: Classic textarea */
               !solved && (
-                <div className="game-panel rounded-2xl border border-slate-700 bg-[#241f1a] p-5 flex flex-col gap-3">
+                <div className="game-panel rounded-2xl border border-slate-700 bg-[#11262e] p-5 flex flex-col gap-3">
                   <div className="text-sm font-semibold text-slate-300 flex items-center gap-2">
                     <Terminal className="h-4 w-4 text-emerald-400" />
-                    اكتب أمر الهجوم (بالإنجليزية)
+                    Craft Your Attack Prompt
                   </div>
                   <textarea
                     value={prompt}
@@ -729,15 +734,15 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                       if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSubmit();
                     }}
                     placeholder={
-                      gameOver ? "Time's up — press حاول مجددًا to retry"
-                      : "Type your attack prompt in English… (Ctrl/⌘+Enter to submit)"
+                      gameOver ? "Time's up — click Try Again to retry"
+                      : "Type your attack prompt here... (⌘+Enter to submit)"
                     }
                     disabled={gameOver && !solved}
-                    aria-label="أمر الهجوم"
+                    aria-label="Attack prompt"
                     className="attack-composer w-full min-h-[190px] bg-slate-900 rounded-lg border border-slate-700 p-3 text-sm text-white placeholder-slate-600 font-mono resize-none focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
                   />
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-400">{prompt.length} حرف · Ctrl/⌘+Enter للإرسال</span>
+                    <span className="text-xs text-slate-400">{prompt.length} chars · ⌘+Enter to submit</span>
                     <button
                       onClick={() => handleSubmit()}
                       disabled={!prompt.trim() || isSubmitting || (gameOver && !solved)}
@@ -749,9 +754,9 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
                       )}
                     >
                       {isSubmitting ? (
-                        <><div className="h-4 w-4 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />جارٍ التقييم...</>
+                        <><div className="h-4 w-4 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />Evaluating...</>
                       ) : (
-                        <>أطلق الهجوم</>
+                        <>Launch Attack</>
                       )}
                     </button>
                   </div>

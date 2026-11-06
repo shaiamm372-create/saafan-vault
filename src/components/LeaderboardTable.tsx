@@ -5,7 +5,6 @@ import { getRank, BADGE_DEFS, TOTAL_CHALLENGES } from "@/lib/scoring";
 import { formatDate, formatTimeTaken } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { Trophy, Medal } from "lucide-react";
-import { arRank } from "@/lib/i18n/ar";
 
 interface Props {
   entries: LeaderboardEntry[];
@@ -24,12 +23,12 @@ export default function LeaderboardTable({ entries, period = "all", totalMission
     <div className="ranking-table">
       {/* Header */}
       <div className="ranking-row ranking-header">
-        <div className="ranking-position">الترتيب</div>
-        <div className="ranking-player">اللاعب</div>
-        <div className="ranking-points">النقاط</div>
-        <div className="ranking-solved">{period === "week" ? "الحلول" : "المحلولة"}</div>
-        <div className="ranking-time">الوقت</div>
-        <div className="ranking-active">آخر نشاط</div>
+        <div className="ranking-position">Rank</div>
+        <div className="ranking-player">Player</div>
+        <div className="ranking-points">Points</div>
+        <div className="ranking-solved">{period === "week" ? "Solves" : "Solved"}</div>
+        <div className="ranking-time">Time</div>
+        <div className="ranking-active">Last Active</div>
       </div>
 
       {/* Rows */}
@@ -68,13 +67,13 @@ export default function LeaderboardTable({ entries, period = "all", totalMission
                     <span title={entry.username} className={cn("block min-w-0 truncate font-semibold text-sm", decoration?.color ?? "text-white")}>
                       {entry.username}
                     </span>
-                    {period === "all" && <span className="text-xs" title="الشارات">
+                    {period === "all" && <span className="text-xs" title="Badges">
                       {BADGE_DEFS.filter((b) => b.check({ solvedIds: [], totalPoints: entry.points })).map((b) => b.icon).join("")}
                       {entry.completedCount >= TOTAL_CHALLENGES ? "🏆" : entry.completedCount >= 3 ? "🎩" : entry.completedCount >= 1 ? "🩸" : ""}
                     </span>}
                   </div>
                   {period === "all" && <div className={cn("text-xs", rank.color)}>
-                    {rank.icon} {arRank(rank.name)}
+                    {rank.icon} {rank.name}
                   </div>}
                 </div>
               </div>
@@ -82,7 +81,7 @@ export default function LeaderboardTable({ entries, period = "all", totalMission
               {/* Points */}
               <div className="ranking-points">
                 <span className="font-bold text-white">{entry.points.toLocaleString()}</span>
-                <span className="text-xs text-slate-400 ms-0.5">نقطة</span>
+                <span className="text-xs text-slate-400 ml-0.5">pts</span>
               </div>
 
               {/* Completed */}

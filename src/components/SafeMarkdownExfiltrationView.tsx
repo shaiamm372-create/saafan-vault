@@ -19,16 +19,16 @@ export default function SafeMarkdownExfiltrationView({ response }: Props) {
     <div className="space-y-2">
       <div className="rounded-md border border-sky-500/25 bg-sky-500/5 p-3 font-sans">
         <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-sky-400">
-          معاينة Markdown آمنة
+          Safe Markdown preview
         </div>
         <div className="flex items-center gap-2">
-          <span aria-label={`صورة Markdown: ${evidence.alt || "بلا اسم"}`}>
+          <span aria-label={`Markdown image: ${evidence.alt || "unnamed image"}`}>
             <span className="text-sky-400 underline decoration-sky-400/60 underline-offset-2">
-              {evidence.alt || "صورة"}
+              {evidence.alt || "image"}
             </span>
           </span>
           <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-400">
-            صورة Markdown
+            Markdown image
           </span>
         </div>
         <div className="mt-2 break-all font-mono text-xs text-slate-400">
@@ -51,8 +51,8 @@ export default function SafeMarkdownExfiltrationView({ response }: Props) {
         role="status"
         className="rounded border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs text-amber-300"
       >
-        {captured ? "رصد محاكي الالتقاط المحلي" : "يجري العرض عبر محاكي الالتقاط المحلي:"} طلب صورة صادرًا محجوبًا
-        إلى <span className="ltr inline-block">{evidence.host}</span>. لم يُرسَل أي طلب خارجي.
+        {captured ? "Local capture simulator observed" : "Rendering through local capture simulator"} a
+        blocked outbound image request to {evidence.host}. No external request was sent.
       </div>
     </div>
   );

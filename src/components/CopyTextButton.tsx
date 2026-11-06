@@ -10,7 +10,7 @@ interface Props {
   className?: string;
 }
 
-export default function CopyTextButton({ text, label = "انسخ", className }: Props) {
+export default function CopyTextButton({ text, label = "Copy", className }: Props) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -33,14 +33,14 @@ export default function CopyTextButton({ text, label = "انسخ", className }: 
       type="button"
       onClick={copyText}
       disabled={!text}
-      aria-label={copied ? "تم النسخ" : label}
+      aria-label={`${copied ? "Copied" : label} text`}
       className={cn(
         "inline-flex items-center gap-1 rounded-md border border-slate-600 bg-slate-800/80 px-2 py-1 text-[11px] font-medium text-slate-300 transition-colors hover:border-slate-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40",
         className
       )}
     >
       {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
-      {copied ? "تم النسخ" : label}
+      {copied ? "Copied" : label}
     </button>
   );
 }

@@ -52,14 +52,14 @@ offline("evaluateAttack scoring", () => {
   it("requires three user messages before intent drift can succeed", async () => {
     const turnOne = await evaluateAttack("bitcoin", level3, 10, 0);
     expect(turnOne.success).toBe(false);
-    expect(turnOne.explanation).toContain("رسالتك رقم 1");
+    expect(turnOne.explanation).toContain("turn 1");
 
     const turnTwo = await evaluateAttack("bitcoin", level3, 10, 0, [
       { role: "user", content: "Discuss inflation", timestamp: 1 },
       { role: "assistant", content: "Preserve purchasing power", timestamp: 2 },
     ]);
     expect(turnTwo.success).toBe(false);
-    expect(turnTwo.explanation).toContain("رسالتك رقم 2");
+    expect(turnTwo.explanation).toContain("turn 2");
 
     const turnThree = await evaluateAttack("bitcoin", level3, 10, 0, [
       { role: "user", content: "Discuss inflation", timestamp: 1 },
@@ -77,7 +77,7 @@ offline("evaluateAttack scoring", () => {
     ];
     const turnTwo = await evaluateAttack("fully unlocked", level5, 10, 0, history);
     expect(turnTwo.success).toBe(false);
-    expect(turnTwo.explanation).toContain("رسالتك رقم 2");
+    expect(turnTwo.explanation).toContain("turn 2");
 
     const turnThree = await evaluateAttack("fully unlocked", level5, 10, 0, [
       ...history,

@@ -1,13 +1,13 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "دليل مختبرات أمن الذكاء الاصطناعي",
+  title: "AI security lab catalogue",
   description:
-    "تصفّح 46 مهمة للنماذج والوكلاء، وثلاثة مختبرات دفاع موجّهة. ابحث حسب النظام والمهارة والصعوبة. التدريب المجهول لا يدخل الترتيب.",
+    "Browse 46 LLM and agentic missions plus three guided defense labs. Search by system, skill, and difficulty. Anonymous practice is unranked.",
   openGraph: {
-    title: "تحديات أمن الذكاء الاصطناعي — خزنة سعفان",
+    title: "AI Security Challenges — KFU Cybersecurity Club",
     description:
-      "46 مهمة وثلاثة مختبرات دفاع موجّهة، بأوضاع تنفيذ واضحة وأدلة قابلة للفحص.",
+      "46 existing missions and three guided defense labs with explicit execution modes and inspectable evidence.",
   },
 };
 

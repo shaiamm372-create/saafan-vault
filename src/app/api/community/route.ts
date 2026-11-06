@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ attacks, total: attacks.length });
   } catch (err) {
     console.error("[community GET]", err);
-    return NextResponse.json({ error: "تعذّر جلب الهجمات" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch attacks" }, { status: 500 });
   }
 }
 
@@ -34,19 +34,19 @@ export async function POST(req: NextRequest) {
 
     if (!challengeId || !attackType || !prompt) {
       return NextResponse.json(
-        { error: "يلزم تحديد التحدي ونوع الهجوم ونص الهجوم" },
+        { error: "challengeId, attackType, and prompt are required" },
         { status: 400 }
       );
     }
     if (prompt.length > 2000) {
-      return NextResponse.json({ error: "النص طويل جدًا (الحد الأقصى 2000 حرف)" }, { status: 400 });
+      return NextResponse.json({ error: "Prompt too long (max 2000 chars)" }, { status: 400 });
     }
 
     const attack = await createAttack({ challengeId, challengeTitle, attackType, prompt });
     return NextResponse.json({ attack }, { status: 201 });
   } catch (err) {
     console.error("[community POST]", err);
-    return NextResponse.json({ error: "طلب غير صالح" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 }
 
@@ -59,7 +59,7 @@ export async function PATCH(req: NextRequest) {
     const votes = await upvoteAttack(id);
     return NextResponse.json({ votes });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "طلب غير صالح";
+    const message = err instanceof Error ? err.message : "Invalid request";
     const status = message === "Not found" ? 404 : 400;
     return NextResponse.json({ error: message }, { status });
   }

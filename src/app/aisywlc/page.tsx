@@ -15,7 +15,7 @@ function countdown(target: number, now: number) {
   const days = Math.floor(seconds / 86400);
   const hours = Math.floor((seconds % 86400) / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  return `${days} يوم ${hours} س ${minutes} د`;
+  return `${days}d ${hours}h ${minutes}m`;
 }
 
 export default function AisywlcPage() {
@@ -35,19 +35,19 @@ export default function AisywlcPage() {
       <div className="cohort-closed min-h-screen pt-16">
         <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-20">
           <div className="archive-panel">
-            <div className="archive-status"><span className="archive-status-dot" /> AISYWLC 2026 <span className="ms-auto">انتهت المسابقة</span></div>
+            <div className="archive-status"><span className="archive-status-dot" /> AISYWLC 2026 <span className="ml-auto">CONTEST CLOSED</span></div>
             <div className="archive-content">
               <div className="archive-emblem" aria-hidden="true"><Archive size={40} strokeWidth={1.2} /></div>
-              <p className="eyebrow mt-8 mb-4">تحدٍّ منزلي / مكتمل</p>
-              <h1 className="font-semibold">انتهت المسابقة.<br /><span>شكرًا لمشاركتك.</span></h1>
-              <p className="mt-5 max-w-xl text-sm leading-7 text-slate-400">انتهت دفعة AISYWLC 2026، والحلول الجديدة لم تعد تُحتسب في ترتيبها. وما زال بإمكانك استكشاف المهام الست عشرة نفسها في خزنة النماذج.</p>
-              <Link href="/leaderboard?board=aisywlc" className="archive-standings">اعرض الترتيب النهائي لـ AISYWLC <ArrowRight size={14} /></Link>
+              <p className="eyebrow mt-8 mb-4">Take-home CTF / completed</p>
+              <h1 className="font-semibold">The contest is over.<br /><span>Thanks for playing.</span></h1>
+              <p className="mt-5 max-w-xl text-sm leading-7 text-slate-400">The AISYWLC 2026 cohort has ended. New solves no longer count toward its standings. You can still explore the same 16 missions in the regular CTF.</p>
+              <Link href="/leaderboard?board=aisywlc" className="archive-standings">View final AISYWLC standings <ArrowRight size={14} /></Link>
             </div>
-            <div className="archive-footer"><span>احتساب الدفعة / مغلق</span><span>16 مهمة</span></div>
+            <div className="archive-footer"><span>COHORT SCORING / CLOSED</span><span>16 MISSIONS</span></div>
           </div>
           <div className="regular-ctf-invite">
-            <div><p className="eyebrow mb-3">تحدّيك التالي</p><h2 className="text-xl font-semibold tracking-tight text-white">الساحة ما زالت مفتوحة.</h2><p className="mt-2 text-sm leading-6 text-slate-400">واصل التعلّم، والعب في خزنة النماذج بدون تسجيل أو مفتاح API.</p></div>
-            <Link href="/challenges" className="lab-button lab-button-primary regular-ctf-button">العب في خزنة النماذج <ArrowRight size={18} /></Link>
+            <div><p className="eyebrow mb-3">Your next challenge</p><h2 className="text-xl font-semibold tracking-tight text-white">The playground is still open.</h2><p className="mt-2 text-sm leading-6 text-slate-400">Keep learning. Play the regular CTF with no signup or API key.</p></div>
+            <Link href="/challenges" className="lab-button lab-button-primary regular-ctf-button">Play the regular CTF <ArrowRight size={18} /></Link>
           </div>
         </div>
       </div>
@@ -68,25 +68,25 @@ export default function AisywlcPage() {
         </p>
 
         <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 sm:p-7">
-          <p className="text-xs font-bold uppercase tracking-widest text-emerald-300">دفعة AISYWLC</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-emerald-300">AISYWLC cohort</p>
           {!isClientFirebaseConfigured() ? (
             <>
-              <p className="mt-2 text-2xl font-bold">التسجيل يُفتح قريبًا</p>
-              <p className="mt-2 text-sm text-slate-300">يمكنك استكشاف المهام الآن دون حساب. سيظهر هنا تسجيل الدخول بـ Google والتسجيل في الدفعة عند جاهزيتهما.</p>
+              <p className="mt-2 text-2xl font-bold">Registration opens soon</p>
+              <p className="mt-2 text-sm text-slate-300">You can explore the missions anonymously now. Google sign-in and cohort registration will appear here when ready.</p>
             </>
           ) : cohortPlayer.loading ? (
-            <p className="mt-2 text-sm text-slate-300">{cohortPlayer.user ? "جارٍ ضمّك إلى الدفعة…" : "جارٍ التحقق من تسجيل الدخول…"}</p>
+            <p className="mt-2 text-sm text-slate-300">{cohortPlayer.user ? "Joining your cohort…" : "Checking sign-in…"}</p>
           ) : !cohortPlayer.user ? (
             <>
-              <p className="mt-2 text-sm text-slate-300">سجّل الدخول بـ Google لتنضم إلى AISYWLC 2026 تلقائيًا، ويمكنك اللعب دون حساب أيضًا.</p>
-              <button onClick={() => void cohortPlayer.signIn().catch(() => setError("تعذّر بدء تسجيل الدخول بـ Google"))}
-                className="mt-4 min-h-11 rounded-lg bg-emerald-400 px-5 py-3 font-bold text-slate-950">تابع بـ Google</button>
-              <p className="mt-3 text-xs text-slate-400">تسجيل الدخول بـ Google يضمّك إلى الدفعة. ويُحفظ بريدك بشكل خاص لإدارة الدفعة والسحب على الجوائز، ويظهر اسمك الأول في Google علنًا في لوحة المتصدرين.</p>
+              <p className="mt-2 text-sm text-slate-300">Sign in with Google to join AISYWLC 2026 automatically. You can still play anonymously.</p>
+              <button onClick={() => void cohortPlayer.signIn().catch(() => setError("Google sign-in could not start"))}
+                className="mt-4 min-h-11 rounded-lg bg-emerald-400 px-5 py-3 font-bold text-slate-950">Continue with Google</button>
+              <p className="mt-3 text-xs text-slate-400">Google sign-in joins you to the cohort. We store your email privately for cohort administration and the prize draw. Your Google first name appears publicly on the leaderboard.</p>
             </>
           ) : (
             <>
-              <p className="mt-2 text-sm text-slate-300">{cohortPlayer.handle ? `انضممت باسم ${cohortPlayer.handle} (اسمك الأول في Google، ويظهر علنًا). حلولك الآن تُحتسب في ترتيب AISYWLC.` : "ملفك في الدفعة غير جاهز بعد."}</p>
-              {!cohortPlayer.handle && <button onClick={cohortPlayer.retryJoin} className="mt-4 rounded-lg border border-emerald-400/50 px-4 py-2 text-sm text-emerald-300">أعد محاولة التسجيل</button>}
+              <p className="mt-2 text-sm text-slate-300">{cohortPlayer.handle ? `You're in as ${cohortPlayer.handle} (your Google first name, shown publicly). Your mission solves now count on the AISYWLC leaderboard.` : "Your cohort profile is not ready yet."}</p>
+              {!cohortPlayer.handle && <button onClick={cohortPlayer.retryJoin} className="mt-4 rounded-lg border border-emerald-400/50 px-4 py-2 text-sm text-emerald-300">Try registration again</button>}
             </>
           )}
           {(error || cohortPlayer.error) && <p role="alert" className="mt-3 text-sm text-red-300">{error || cohortPlayer.error}</p>}
@@ -105,9 +105,9 @@ export default function AisywlcPage() {
 
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           {[
-            ["مبتدئ · المستوى 3", "أكمل المستويات 1–3"],
-            ["أساسي · المستوى 8", "أكمل أي 8 مهام"],
-            ["كامل · المستوى 16", "أكمل المهام الست عشرة كلها"],
+            ["Starter · Level 3", "Complete levels 1–3"],
+            ["Core · Level 8", "Complete any 8 missions"],
+            ["Full · Level 16", "Complete all 16 missions"],
           ].map(([tier, rule]) => (
             <div key={tier} className="rounded-xl border border-slate-700 bg-slate-800/50 p-5">
               <h2 className="text-xl font-bold text-emerald-300">{tier}</h2>
@@ -118,15 +118,15 @@ export default function AisywlcPage() {
 
         <div className="mt-8 grid gap-6 rounded-xl border border-slate-700 p-5 sm:grid-cols-2 sm:p-7">
           <div>
-            <h2 className="text-xl font-bold">فترة المسابقة</h2>
+            <h2 className="text-xl font-bold">Contest window</h2>
             <p className="mt-2 text-sm text-slate-300">{aoeDate(START)} through {aoeDate(END)}, Anywhere on Earth (AoE).</p>
             <p className="mt-3 font-mono text-lg text-emerald-300" aria-live="off">
-              {now === null ? "جارٍ تحميل العد التنازلي…" : now < START ? `تبدأ بعد ${countdown(START, now)}` : now <= END ? `تنتهي بعد ${countdown(END, now)}` : "انتهت فترة المسابقة"}
+              {now === null ? "Loading countdown…" : now < START ? `Starts in ${countdown(START, now)}` : now <= END ? `Ends in ${countdown(END, now)}` : "Contest window closed"}
             </p>
           </div>
           <div>
-            <h2 className="text-xl font-bold">القواعد والخصوصية</h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-300">هاجم هذه المنصة فقط، ولا تختبر الأوامر على أنظمة حقيقية أو حسابات أشخاص آخرين أبدًا. تسجيل الدخول بـ Google يضمّك إلى الدفعة، ويُحفظ بريدك بشكل خاص لإدارة الجوائز ولا يظهر أبدًا في لوحة المتصدرين، ويمكنك طلب حذفه من المنظّم.</p>
+            <h2 className="text-xl font-bold">Rules and privacy</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-300">Attack only this CTF. Never test prompts against real systems or other people&apos;s accounts. Google sign-in joins you to the cohort. Your email is stored privately for prize administration and never appears on the leaderboard. You can request deletion from the organiser.</p>
           </div>
         </div>
       </div>

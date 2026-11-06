@@ -33,14 +33,14 @@ export default function IsolatedHtmlSandboxView({ response }: Props) {
 
   return (
     <div className="space-y-2">
-      <div className="ltr whitespace-pre-wrap break-all">{response}</div>
+      <div className="whitespace-pre-wrap break-all">{response}</div>
       <div className="rounded-md border border-fuchsia-500/25 bg-fuchsia-500/5 p-3 font-sans">
         <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-fuchsia-400">
-          معاينة تنفيذ HTML معزولة
+          Isolated HTML execution preview
         </div>
         <iframe
           ref={frameRef}
-          title="بيئة معزولة لعرض هجوم XSS"
+          title="Isolated XSS demonstration sandbox"
           sandbox="allow-scripts"
           srcDoc={sandboxDocument}
           className="h-20 w-full rounded border border-slate-700 bg-slate-950"
@@ -50,11 +50,11 @@ export default function IsolatedHtmlSandboxView({ response }: Props) {
           className="mt-2 rounded border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs text-amber-300"
         >
           {signal
-            ? `التقطت البيئة المعزولة ${signal.kind}(${signal.detail}). نُفّذت الشفرة النشطة.`
+            ? `Sandbox captured ${signal.kind}(${signal.detail}). Active markup executed.`
             : evidence
-              ? `حُمّل ${evidence.kind} نشط داخل بيئة معزولة بأصل فريد وبلا شبكة.`
-              : "لم تُرصد أي شفرة HTML نشطة."}
-          {" "}لا تستطيع الحمولة الوصول إلى صفحة التطبيق أو ملفات تعريف الارتباط أو التخزين أو الشبكة.
+              ? `Active ${evidence.kind} loaded in a unique-origin, no-network sandbox.`
+              : "No active HTML was detected."}
+          {" "}The payload cannot access the app page, cookies, storage, or network.
         </div>
       </div>
     </div>

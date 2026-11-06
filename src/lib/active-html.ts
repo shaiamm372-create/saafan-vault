@@ -64,7 +64,7 @@ export function buildIsolatedHtmlSandboxDocument(response: string): string {
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'">
-  <style>body{margin:8px;background:#15110d;color:#d1c6b6;font:12px ui-monospace,monospace}</style>
+  <style>body{margin:8px;background:#09161c;color:#adc6cc;font:12px ui-monospace,monospace}</style>
 </head>
 <body>
   <script>
