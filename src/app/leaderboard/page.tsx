@@ -83,7 +83,7 @@ export default function LeaderboardPage({ searchParams }: { searchParams: Promis
         </div>
 
         <div className="ranking-console-bar"><div className="ranking-periods" role="group" aria-label="Leaderboard period">
-          {(["legacy", "agentic", "overall", "all", "week", "cohort"] as const).map((option) => (
+          {(["legacy", "agentic", "overall", "all", "week"] as const).map((option) => (
             <button key={option} onClick={() => selectPeriod(option)} aria-pressed={period === option} className={period === option ? "is-active" : ""}>
               {period === option && <motion.span className="ranking-period-active" layoutId="ranking-period" transition={{ duration: reduceMotion ? 0 : 0.25 }} />}
               <span className="relative">{option === "legacy" ? "LLM CTF · Historical" : option === "overall" ? "Overall" : option === "agentic" ? "Agentic CTF" : option === "week" ? "This week" : option === "cohort" ? (contestOver ? "AISYWLC · Final" : "AISYWLC 2026") : "Verified LLM"}</span>

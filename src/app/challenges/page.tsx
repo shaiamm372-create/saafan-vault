@@ -41,7 +41,7 @@ export default function ChallengesPage({ searchParams }: { searchParams: Promise
         <div className="ctf-track-footer"><span>30 missions · OWASP Agentic 2026</span><strong>Explore Agentic CTF <ArrowUpRight size={18} /></strong></div>
       </Link>
     </div>
-    <div className="mt-8 flex flex-wrap gap-3"><Link href="/leaderboard" className="lab-button lab-button-primary">Leaderboard <ArrowUpRight size={16} /></Link><Link href="/community" className="lab-button lab-button-secondary">Community</Link><Link href="/aisywlc" className="lab-button lab-button-secondary">AISYWLC 2026</Link><Link href="/challenges?view=labs" className="lab-button lab-button-secondary">All labs & guided defenses</Link></div>
+    <div className="mt-8 flex flex-wrap gap-3"><Link href="/leaderboard" className="lab-button lab-button-primary">Leaderboard <ArrowUpRight size={16} /></Link><Link href="/community" className="lab-button lab-button-secondary">Community</Link><Link href="/challenges?view=labs" className="lab-button lab-button-secondary">All labs & guided defenses</Link></div>
   </div></div>;
 }
 

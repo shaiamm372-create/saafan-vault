@@ -27,7 +27,6 @@ export default function Footer() {
             <Link href="/docs#about">About</Link>
             <Link href="/privacy">Data handling & privacy</Link>
             <Link href="/progress">Your learning record</Link>
-            <Link href="/aisywlc">AISYWLC cohort</Link>
           </nav>
         </div>
         <div className="platform-footer-bottom">
