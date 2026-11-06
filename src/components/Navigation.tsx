@@ -48,7 +48,7 @@ export default function Navigation() {
           ))}
         </div>
         <div className="flex items-center gap-2">
-          {cohortPlayer.handle && <Link href="/progress" className="hidden xl:block text-xs text-emerald-300">{cohortPlayer.handle}</Link>}
+          {cohortPlayer.handle && <span className="hidden xl:block text-xs text-emerald-300">{cohortPlayer.handle}</span>}
           {cohortPlayer.user && <button onClick={() => void cohortPlayer.signOut()} className="hidden lg:block text-xs text-slate-400 hover:text-white underline">Sign out</button>}
           {guest && <button onClick={logOutGuest} className="hidden lg:block text-xs text-slate-400 hover:text-white underline" title={`Log out ${guest.username}`}>Log out</button>}
           <Link href="/challenges" className="nav-cta hidden sm:inline-flex">Choose your CTF <ArrowUpRight className="h-3.5 w-3.5" /></Link>

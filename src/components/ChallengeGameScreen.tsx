@@ -407,7 +407,6 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
           <Link href="/learn/trust-boundaries" className="lab-button lab-button-secondary">Read the foundation lesson</Link>
           <button className="lab-button lab-button-secondary" disabled={!rankedAvailable || isSubmitting} onClick={() => void startRanked()}>{sessionId ? "Start fresh ranked session" : rankedAvailable ? cohortPlayer.user ? "Start ranked live session" : "Sign in for ranked live" : "Ranked live unavailable"}</button>
           {sessionId && <button className="lab-button lab-button-secondary" disabled={isSubmitting} onClick={() => { stopTimer(); setSessionId(null); setGameOver(false); setResult(null); setConversation([]); }}>Return to untimed practice</button>}
-          <Link href="/docs#grading" className="text-xs text-slate-400 underline">How grading works</Link>
         </div>
         {modeError && <p role="alert" className="mb-6 text-sm text-amber-300">{modeError}</p>}
         <div className={cn("grid gap-6", showDefense ? "xl:grid-cols-3 lg:grid-cols-2" : "lg:grid-cols-5")}>
