@@ -421,9 +421,6 @@ export default function HomePage() {
           </p>
           <p className="text-slate-500 text-sm leading-7">
             منطق التقييم وقيود التحديات والمحتوى التعليمي تعكس أنماط هجوم حقيقية موثّقة في OWASP LLM Top 10 و MITRE ATLAS.
-            المنصة نسخة عربية مكيّفة من المشروع مفتوح المصدر{" "}
-            <a href={BRAND.upstream.url} target="_blank" rel="noopener noreferrer" className="ltr inline-block underline underline-offset-4">{BRAND.upstream.name}</a>{" "}
-            من تطوير <span className="ltr inline-block">{BRAND.upstream.author}</span> (ترخيص MIT).
           </p>
         </div>
       </section>

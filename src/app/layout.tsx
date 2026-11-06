@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     "LLM red team",
     "generative AI security",
   ],
-  authors: [{ name: BRAND.owner }, { name: BRAND.upstream.author, url: BRAND.upstream.url }],
+  authors: [{ name: BRAND.owner }],
   creator: BRAND.owner,
   openGraph: {
     type: "website",
@@ -97,7 +97,6 @@ const jsonLd = {
   operatingSystem: "Web",
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
   author: { "@type": "Organization", name: BRAND.owner },
-  isBasedOn: BRAND.upstream.url,
   keywords: "prompt injection, AI security, CTF, jailbreak, red teaming, LLM security",
 };
 

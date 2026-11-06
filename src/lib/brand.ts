@@ -15,12 +15,6 @@ export const BRAND = {
   owner: "نادي الأمن السيبراني — جامعة الملك فيصل",
   ownerShort: "نادي الأمن السيبراني",
   ownerEmail: "kfucsclub@gmail.com",
-  /** The original open-source project this edition is built on (MIT license). */
-  upstream: {
-    name: "Prompt Injection CTF",
-    author: "Pradyoth Prashanth",
-    url: "https://github.com/ppradyoth/prompt-injection-ctf",
-  },
 } as const;
 
 /**

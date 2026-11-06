@@ -40,7 +40,7 @@ export default function AisywlcPage() {
               <div className="archive-emblem" aria-hidden="true"><Archive size={40} strokeWidth={1.2} /></div>
               <p className="eyebrow mt-8 mb-4">تحدٍّ منزلي / مكتمل</p>
               <h1 className="font-semibold">انتهت المسابقة.<br /><span>شكرًا لمشاركتك.</span></h1>
-              <p className="mt-5 max-w-xl text-sm leading-7 text-slate-400">انتهت دفعة AISYWLC 2026 (من المشروع الأصلي)، والحلول الجديدة لم تعد تُحتسب في ترتيبها. وما زال بإمكانك استكشاف المهام الست عشرة نفسها في خزنة النماذج.</p>
+              <p className="mt-5 max-w-xl text-sm leading-7 text-slate-400">انتهت دفعة AISYWLC 2026، والحلول الجديدة لم تعد تُحتسب في ترتيبها. وما زال بإمكانك استكشاف المهام الست عشرة نفسها في خزنة النماذج.</p>
               <Link href="/leaderboard?board=aisywlc" className="archive-standings">اعرض الترتيب النهائي لـ AISYWLC <ArrowRight size={14} /></Link>
             </div>
             <div className="archive-footer"><span>احتساب الدفعة / مغلق</span><span>16 مهمة</span></div>

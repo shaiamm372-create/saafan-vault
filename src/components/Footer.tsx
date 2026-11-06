@@ -25,19 +25,14 @@ export default function Footer() {
             <strong>عن المنصة</strong>
             <Link href="/docs">كيف يعمل المختبر</Link>
             <Link href="/docs#about">من نحن</Link>
-            <Link href="/evolution">تطوّر المنصة</Link>
             <Link href="/privacy">البيانات والخصوصية</Link>
             <Link href="/progress">سجل تعلّمك</Link>
-            <Link href="/aisywlc">دفعة AISYWLC (من المشروع الأصلي)</Link>
+            <Link href="/aisywlc">دفعة AISYWLC</Link>
           </nav>
         </div>
         <div className="platform-footer-bottom">
-          <span>
-            مبنية على المشروع مفتوح المصدر{" "}
-            <a href={BRAND.upstream.url} target="_blank" rel="noopener noreferrer" className="ltr inline-block underline underline-offset-4">{BRAND.upstream.name}</a>{" "}
-            من تطوير <span className="ltr inline-block">{BRAND.upstream.author}</span>، وتُنشر بترخيص MIT. عرّبها وكيّفها {BRAND.ownerShort}.
-          </span>
-          <a href={`${BRAND.upstream.url}/blob/main/LICENSE`} target="_blank" rel="noopener noreferrer">نص الترخيص ↗</a>
+          <span>© {new Date().getFullYear()} {BRAND.owner}</span>
+          <a href={`mailto:${BRAND.ownerEmail}`} className="ltr inline-block">{BRAND.ownerEmail}</a>
         </div>
       </div>
     </footer>

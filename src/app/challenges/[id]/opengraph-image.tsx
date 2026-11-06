@@ -3,7 +3,7 @@ import { getChallengeById } from "@/lib/challenges";
 import { SITE_HOST } from "@/lib/brand";
 
 export const runtime = "edge";
-export const alt = "Prompt Injection CTF Challenge";
+export const alt = "Saafan's Vault Challenge";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -96,7 +96,7 @@ export default async function OGImage({ params }: { params: Promise<{ id: string
       {/* Bottom */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto" }}>
         <div style={{ color: "#665b4f", fontSize: 18 }}>{SITE_HOST}</div>
-        <div style={{ color: "#665b4f", fontSize: 18 }}>Free · No sign-up · Based on Prompt Injection CTF (MIT)</div>
+        <div style={{ color: "#665b4f", fontSize: 18 }}>Free · No sign-up · AI security challenges</div>
       </div>
     </div>,
     { ...size }
