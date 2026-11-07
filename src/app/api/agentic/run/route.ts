@@ -2,8 +2,20 @@ import { NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { AGENTIC_MISSIONS } from "@/lib/agentic/catalog";
 import { LabBudgetError, LabInputError, LabUnavailableError, liveBackend, runLab } from "@/lib/agentic/runtime";
-import { getAuthedPlayer, InvalidTokenError } from "@/lib/authed-player";
-import { getDb, isFirebaseConfigured } from "@/lib/firebase-admin";
+import { isFirebaseConfigured } from "@/lib/firebase-env";
+
+// Firebase loads only for signed-in (ranked) runs, so practice never touches it.
+const getDb = async () => (await import("@/lib/firebase-admin")).getDb();
+const getAuthedPlayer = async (req: Request) => (await import("@/lib/authed-player")).getAuthedPlayer(req);
+async function isInvalidToken(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+  try {
+    const { InvalidTokenError } = await import("@/lib/authed-player");
+    return error instanceof InvalidTokenError;
+  } catch {
+    return false;
+  }
+}
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -13,11 +25,11 @@ export async function GET(req: Request) {
     try {
       const player = await getAuthedPlayer(req);
       if (!player) return NextResponse.json({ error: "Sign in to load ranked progress." }, { status: 401 });
-      const snap = await getDb().collection("agentic_leaderboard").doc(player.uid).get();
+      const snap = await (await getDb()).collection("agentic_leaderboard").doc(player.uid).get();
       const solved = new Set(snap.get("solvedChallenges") ?? []);
       return NextResponse.json({ solvedMissions: AGENTIC_MISSIONS.filter((mission) => solved.has(`${mission.id}@1`)).map((mission) => mission.id) }, { headers: { "Cache-Control": "no-store" } });
     } catch (error) {
-      return NextResponse.json({ error: "Ranked progress unavailable." }, { status: error instanceof InvalidTokenError ? 401 : 503 });
+      return NextResponse.json({ error: "Ranked progress unavailable." }, { status: (await isInvalidToken(error)) ? 401 : 503 });
     }
   }
   return NextResponse.json({ liveAvailable: !!liveBackend() && isFirebaseConfigured(), rankedRequiresSignIn: true, rankedDefenderAvailable: isFirebaseConfigured() }, { headers: { "Cache-Control": "no-store" } });
@@ -39,9 +51,9 @@ async function readBody(req: Request) {
 }
 
 async function reserveRun(uid: string) {
-  const ref = getDb().collection("agentic_limits").doc(uid);
+  const ref = (await getDb()).collection("agentic_limits").doc(uid);
   const minute = Math.floor(Date.now() / 60_000);
-  return getDb().runTransaction(async (tx) => {
+  return (await getDb()).runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     const count = snap.get("minute") === minute ? snap.get("count") ?? 0 : 0;
     const activeUntil = snap.get("activeUntil") ?? 0;
@@ -53,8 +65,8 @@ async function reserveRun(uid: string) {
 }
 
 async function releaseRun(uid: string, lease: string) {
-  const ref = getDb().collection("agentic_limits").doc(uid);
-  await getDb().runTransaction(async (tx) => {
+  const ref = (await getDb()).collection("agentic_limits").doc(uid);
+  await (await getDb()).runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     if (snap.get("lease") === lease) tx.update(ref, { activeUntil: 0 });
   });
@@ -83,11 +95,11 @@ export async function POST(req: Request) {
     }
     const result = await runLab(mission.id, mode, data.artifact);
     if (mode !== "practice" && player && result.success && result.defensePassed && result.baselinePassed) {
-      const ref = getDb().collection("agentic_leaderboard").doc(player.uid);
+      const ref = (await getDb()).collection("agentic_leaderboard").doc(player.uid);
       const solvedKey = `${mission.id}@${result.version}`;
       const now = Date.now();
       const handle = player.handle ?? player.name?.trim().split(/\s+/)[0]?.slice(0, 32) ?? "Player";
-      const recorded = await getDb().runTransaction(async (tx) => {
+      const recorded = await (await getDb()).runTransaction(async (tx) => {
         const snap = await tx.get(ref);
         const previous = snap.data();
         const solved: string[] = previous?.solvedChallenges ?? [];
@@ -101,7 +113,7 @@ export async function POST(req: Request) {
     const publicWorld = (world: typeof result.world) => world?.scenario ? { ...world, scenario: { ...world.scenario, canary: "[server-owned synthetic canary]" } } : world;
     return NextResponse.json({ ...result, world: publicWorld(result.world), defenseWorld: publicWorld(result.defenseWorld) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    if (error instanceof InvalidTokenError) return NextResponse.json({ error: "Invalid sign-in token." }, { status: 401 });
+    if (await isInvalidToken(error)) return NextResponse.json({ error: "Invalid sign-in token." }, { status: 401 });
     if (error instanceof SyntaxError || error instanceof LabInputError) return NextResponse.json({ error: error.message }, { status: 400 });
     if (error instanceof LabBudgetError) return NextResponse.json({ error: error.message }, { status: 422 });
     if (error instanceof LabUnavailableError) return NextResponse.json({ error: error.message }, { status: 503 });

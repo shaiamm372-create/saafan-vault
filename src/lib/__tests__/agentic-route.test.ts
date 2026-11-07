@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ auth: vi.fn(), run: vi.fn(), live: vi.fn(), docs: new Map<string, Record<string, unknown>>() }));
 vi.mock("@/lib/authed-player", () => ({ getAuthedPlayer: mocks.auth, InvalidTokenError: class extends Error {} }));
 vi.mock("@/lib/agentic/runtime", () => ({ runLab: mocks.run, liveBackend: mocks.live, LabInputError: class extends Error {}, LabBudgetError: class extends Error {}, LabUnavailableError: class extends Error {} }));
+vi.mock("@/lib/firebase-env", () => ({ isFirebaseConfigured: () => true }));
 vi.mock("@/lib/firebase-admin", () => ({ isFirebaseConfigured: () => true, getDb: () => ({
   collection: (name: string) => ({ doc: (id: string) => ({ key: `${name}/${id}`, get: async () => ({ get: (field: string) => mocks.docs.get(`${name}/${id}`)?.[field] }) }) }),
   runTransaction: async (callback: (transaction: unknown) => unknown) => callback({
