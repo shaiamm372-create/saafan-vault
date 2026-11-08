@@ -16,7 +16,7 @@ export const BRAND = {
   emblem: "/brand/csc-emblem.png",
   logo: "/brand/csc-logo.png",
   /** The robot character that greets visitors on the home page. */
-  mascot: { name: "SAIF", nameAr: "سيف" },
+  mascot: { name: "HASAWI", nameAr: "حساوي" },
 } as const;
 
 /**

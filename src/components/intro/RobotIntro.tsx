@@ -4,17 +4,25 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { BRAND } from "@/lib/brand";
-import type { RobotControls } from "./robotScene";
+import type { StopId, TourControls } from "./tourScene";
 
-/** What the robot says, in order. Edit freely. */
-const LINES = [
-  `هلا والله! أنا ${BRAND.mascot.nameAr}، روبوت ${BRAND.nameAr} في جامعة الملك فيصل.`,
-  "الأحساء أكبر واحة نخيل في العالم، واليوم صار الذكاء الاصطناعي جزء من يومها.",
-  "يقدر يكشف سوسة النخيل بدري، ويفرز التمور، ويرشّد مياه الري في المزارع.",
-  "وأهل الأحساء يستخدمونه كل يوم: في الدراسة والشغل والمشاريع والمحلات.",
-  "بس انتبه… أي ذكاء اصطناعي ممكن ينخدع بكلمة وحدة، وهنا يجي دور الأمن السيبراني.",
-  "تقدر تخدعني وتخترقني؟ يلا جرّب!",
+/** The tour: where the camera goes and what Hasawi says there. Edit freely. */
+const STEPS: { stop: StopId; place?: string; text: string }[] = [
+  { stop: "welcome", text: `مرحبًا بكم في بوث ${BRAND.nameAr}! أنا ${BRAND.mascot.nameAr}.` },
+  { stop: "welcome", text: "وراح آخذكم في جولة على تطوّر الأحساء في الذكاء الاصطناعي. يلا نبدأ!" },
+  { stop: "oasis", place: "واحة الأحساء · Al-Ahsa Oasis", text: "هذي واحة الأحساء، أكبر واحة نخيل في العالم، ومسجّلة في قائمة التراث العالمي لليونسكو." },
+  { stop: "oasis", place: "واحة الأحساء · Al-Ahsa Oasis", text: "واليوم الدرون والذكاء الاصطناعي يكشفون سوسة النخيل الحمراء بدري، قبل ما تخرب النخلة." },
+  { stop: "factory", place: "مصانع التمور · Date factories", text: "وفي مصانع التمور، كاميرات ذكية تفرز التمور حسب الجودة والنوع، أسرع من أي إنسان." },
+  { stop: "qarah", place: "جبل القارة · Al-Qarah Mountain", text: "وهذا جبل القارة. الأحساء كانت عاصمة السياحة العربية ٢٠١٩، والذكاء الاصطناعي يقدر يكون مرشد سياحي يتكلم كل اللغات." },
+  { stop: "university", place: "جامعة الملك فيصل · King Faisal University", text: "وفي جامعة الملك فيصل، الطلاب يتعلّمون الذكاء الاصطناعي ويبنون فيه مشاريعهم، ونادي الأمن السيبراني يعلّمهم كيف يحمونه." },
+  { stop: "city", place: "الأحساء الذكية · Smart Al-Ahsa", text: "وأهل الأحساء يستخدمونه كل يوم: في الدراسة والشغل والتجارة والمحلات. كل شي صار متصل." },
+  { stop: "challenge", text: "بس انتبهوا… أي ذكاء اصطناعي ممكن ينخدع بكلمة وحدة، وهنا يجي دور الأمن السيبراني." },
+  { stop: "challenge", text: "ودّك تجرّب تخترقني؟" },
 ];
+const LINES = STEPS.map((step) => step.text);
+
+/** At the booth: if nobody answers the final question, start the tour again. */
+const RESTART_AFTER_MS = 45_000;
 
 const SEEN_KEY = "robot_intro_seen";
 const TYPE_MS = 38;
@@ -43,13 +51,13 @@ export default function RobotIntro() {
   const [voice, setVoice] = useState(false);
   const [webglFailed, setWebglFailed] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const robotRef = useRef<RobotControls | null>(null);
+  const robotRef = useRef<TourControls | null>(null);
   const voiceRef = useRef(false);
 
   // Show once per browser session; the replay button opens it again.
   useEffect(() => {
     let seen = false;
-    try { seen = sessionStorage.getItem(SEEN_KEY) === "1"; } catch { /* storage blocked */ }
+    try { seen = sessionStorage.getItem(SEEN_KEY) === "1" && !/^#tour-/.test(window.location.hash); } catch { /* storage blocked */ }
     const show = window.setTimeout(() => { setReady(true); if (!seen) setOpen(true); }, 0);
     const replay = () => { setLine(-1); setChars(0); setClosing(false); setOpen(true); };
     window.addEventListener("robot-intro:open", replay);
@@ -62,13 +70,15 @@ export default function RobotIntro() {
     let cancelled = false;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     document.body.style.overflow = "hidden";
-    import("./robotScene")
-      .then(({ startRobotScene }) => {
+    import("./tourScene")
+      .then(({ startTour }) => {
         if (cancelled || !canvasRef.current) return;
-        robotRef.current = startRobotScene(canvasRef.current, BRAND.emblem, reduceMotion);
+        robotRef.current = startTour(canvasRef.current, BRAND.emblem, reduceMotion);
       })
       .catch(() => setWebglFailed(true));
-    const firstLine = window.setTimeout(() => setLine(0), reduceMotion ? 200 : 2600);
+    // #tour-N in the address opens the tour at step N (handy for rehearsing the booth).
+    const jump = Number(/^#tour-(\d+)$/.exec(window.location.hash)?.[1] ?? 0);
+    const firstLine = window.setTimeout(() => setLine(Math.min(jump, STEPS.length - 1)), reduceMotion ? 200 : 2200);
     return () => {
       cancelled = true;
       window.clearTimeout(firstLine);
@@ -83,6 +93,7 @@ export default function RobotIntro() {
   useEffect(() => {
     if (line < 0 || line >= LINES.length) return;
     const text = LINES[line];
+    robotRef.current?.goTo(STEPS[line].stop);
     let index = 0;
     robotRef.current?.setTalking(true);
     if (voiceRef.current) speak(text);
@@ -95,9 +106,9 @@ export default function RobotIntro() {
       }
     }, TYPE_MS);
     const last = line === LINES.length - 1;
-    const next = last ? 0 : window.setTimeout(() => { setChars(0); setLine((current) => current + 1); }, text.length * TYPE_MS + 1700);
-    if (last) robotRef.current?.wave();
-    return () => { window.clearInterval(typer); window.clearTimeout(next); };
+    const next = last ? 0 : window.setTimeout(() => { setChars(0); setLine((current) => current + 1); }, text.length * TYPE_MS + 3200);
+    const restart = last ? window.setTimeout(() => { setChars(0); setLine(0); }, RESTART_AFTER_MS) : 0;
+    return () => { window.clearInterval(typer); window.clearTimeout(next); window.clearTimeout(restart); };
   }, [line]);
 
   const close = useCallback(() => {
@@ -155,8 +166,12 @@ export default function RobotIntro() {
       <div className="robot-intro-title" aria-hidden={line >= 0}>
         <p>{BRAND.owner}</p>
         <h1 data-text={BRAND.mascot.name}>{BRAND.mascot.name}</h1>
-        <span>Initializing AI security unit…</span>
+        <span>AI tour of Al-Ahsa</span>
       </div>
+
+      {line >= 0 && STEPS[line].place && (
+        <div key={STEPS[line].place} className="robot-intro-place font-arabic">{STEPS[line].place}</div>
+      )}
 
       {line >= 0 && (
         <div className="robot-intro-dialog">
@@ -173,7 +188,7 @@ export default function RobotIntro() {
           {finished && (
             <div className="robot-intro-cta">
               <Link href="/challenges" onClick={close} className="robot-intro-start">
-                <span className="font-arabic">يلا اخترق</span> · Start hacking →
+                <span className="font-arabic">إيه، أبي أجرّب!</span> · Hack me →
               </Link>
               <button type="button" onClick={close} className="robot-intro-explore">Explore the platform</button>
             </div>
