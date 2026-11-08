@@ -29,6 +29,8 @@ import { LESSONS, FOUNDATION_PATH } from "@/lib/learning";
 import { trackEvent } from "@/lib/utils";
 import { BRAND, SITE_URL } from "@/lib/brand";
 import RobotIntro from "@/components/intro/RobotIntro";
+import VideoIntro from "@/components/intro/VideoIntro";
+import { INTRO_VIDEO } from "@/components/intro/tourMedia";
 
 interface LiveStats {
   totalPlayers: number;
@@ -146,7 +148,7 @@ export default function HomePage() {
 
   return (
     <div className="home-page">
-      <RobotIntro />
+      {INTRO_VIDEO ? <VideoIntro /> : <RobotIntro />}
       <section className="hero-section hero-command" onPointerMove={(event) => {
         if (reduceMotion || event.pointerType !== "mouse") return;
         const bounds = event.currentTarget.getBoundingClientRect();

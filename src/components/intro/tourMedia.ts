@@ -9,3 +9,9 @@ import type { StopId } from "./tourScene";
  *   oasis: { src: "/tour/oasis.mp4", credit: "Photo: KFU Media Center" },
  */
 export const TOUR_MEDIA: Partial<Record<StopId, { src: string; credit?: string }>> = {};
+
+/**
+ * Hasawi's intro video (made in HeyGen). When set, the home page opens with this
+ * video instead of the 3D tour. Put the file in /public/tour.
+ */
+export const INTRO_VIDEO: string | null = null;

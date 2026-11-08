@@ -979,3 +979,10 @@ html[dir="rtl"] .bidi-auto { unicode-bidi: plaintext; text-align: start; }
 @media (min-width: 900px) {
   .robot-intro-gate { left: auto; right: 6%; bottom: auto; top: 50%; transform: translateY(-50%); width: min(520px, 44%); animation: robot-intro-in 800ms 300ms both; }
 }
+.video-intro-player { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #09171d; transition: filter 600ms ease, opacity 600ms ease; }
+.video-intro-player.is-gate, .video-intro-player.is-question { filter: blur(6px) brightness(0.45); }
+@media (max-aspect-ratio: 1/1) { .video-intro-player.is-playing { object-fit: contain; } }
+.video-intro-center { left: 50% !important; right: auto !important; top: 50% !important; bottom: auto !important; transform: translate(-50%, -50%) !important; width: min(620px, calc(100% - 32px)) !important; }
+.video-intro-question { font-size: clamp(30px, 6vw, 56px); font-weight: 700; color: #eef6f7; text-shadow: 0 0 24px rgba(47,179,189,0.7); margin-bottom: 8px; }
+.video-intro-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(238,246,247,0.12); }
+.video-intro-progress b { display: block; height: 100%; background: linear-gradient(90deg, #2fb3bd, #c4a666); transform-origin: left; }
