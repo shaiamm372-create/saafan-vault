@@ -10,7 +10,6 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import { buildAndroid } from "./android";
 
 const TEAL = 0x2fb3bd;
 const GOLD = 0xc4a666;
@@ -19,6 +18,9 @@ const NIGHT = 0x08151b;
 /** Where the camera stands for each part of the tour. */
 export type StopId = "welcome" | "oasis" | "factory" | "qarah" | "university" | "city" | "challenge";
 type RobotPose = "center" | "corner";
+
+/** Hasawi stands in the centre at the start and end, and at the side during the tour. */
+export const robotPoseFor = (stop: StopId): RobotPose => STOPS[stop].robot;
 
 const STOPS: Record<StopId, { camera: [number, number, number]; target: [number, number, number]; robot: RobotPose }> = {
   welcome: { camera: [0, 9, 34], target: [0, 1, -12], robot: "center" },
@@ -32,7 +34,6 @@ const STOPS: Record<StopId, { camera: [number, number, number]; target: [number,
 
 export interface TourControls {
   goTo: (stop: StopId) => void;
-  setTalking: (talking: boolean) => void;
   dispose: () => void;
 }
 
@@ -387,26 +388,7 @@ export function startTour(canvas: HTMLCanvasElement, emblemUrl: string, reduceMo
   const dust = new THREE.Points(dustGeometry, track(new THREE.PointsMaterial({ color: TEAL, size: 0.09, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false })));
   scene.add(dust);
 
-  // ── Hasawi rides with the camera ──────────────────────────────────────────
   let renderStill = () => {};
-  const android = buildAndroid(track, emblemUrl, () => reduceMotion && renderStill());
-  const rig = new THREE.Group();
-  rig.add(android.group);
-  camera.add(rig);
-  const robotKey = new THREE.DirectionalLight(0xffffff, 0.9);
-  robotKey.position.set(2, 3, 2);
-  const robotRimTeal = new THREE.PointLight(TEAL, 1.5, 8);
-  robotRimTeal.position.set(-2.5, 1, -7.5);
-  const robotRimGold = new THREE.PointLight(GOLD, 1.2, 8);
-  robotRimGold.position.set(2.5, -0.5, -7.5);
-  camera.add(robotKey, robotKey.target, robotRimTeal, robotRimGold);
-  robotKey.target.position.set(0, 0, -6);
-
-  // A holographic disc the robot hovers over when it is centred.
-  const pad = mesh(new THREE.TorusGeometry(1.05, 0.025, 8, 80), glowTeal);
-  pad.rotation.x = Math.PI / 2;
-  pad.position.y = -2.35;
-  android.group.add(pad);
 
   // ── Post-processing ───────────────────────────────────────────────────────
   const composer = new EffectComposer(renderer);
@@ -416,11 +398,6 @@ export function startTour(canvas: HTMLCanvasElement, emblemUrl: string, reduceMo
   composer.addPass(new OutputPass());
   disposables.push(composer, bloom);
 
-  // Robot placement in front of the camera for each pose and screen shape.
-  const poses: Record<RobotPose, { position: THREE.Vector3; scale: number }> = {
-    center: { position: new THREE.Vector3(0, 0.45, -6), scale: 1 },
-    corner: { position: new THREE.Vector3(-2.6, -0.3, -6), scale: 0.5 },
-  };
   const resize = () => {
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
@@ -429,19 +406,9 @@ export function startTour(canvas: HTMLCanvasElement, emblemUrl: string, reduceMo
     composer.setSize(width, height);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    const halfH = 6 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-    const halfW = halfH * camera.aspect;
     const portrait = camera.aspect < 0.8;
     // Narrow screens see less sideways, so stand further back from each landmark.
     distanceFactor = portrait ? 1.7 : camera.aspect < 1.2 ? 1.25 : 1;
-    poses.center.scale = portrait ? Math.min(1, halfW / 1.45) : 1;
-    poses.center.position.set(0, portrait ? halfH * 0.32 : 0.55, -6);
-    poses.corner.scale = portrait ? 0.27 : 0.48;
-    poses.corner.position.set(
-      portrait ? halfW - 0.42 : -halfW + 1.0,
-      portrait ? halfH - 0.95 : halfH * 0.2,
-      -6,
-    );
     if (reduceMotion) renderStill();
   };
   let distanceFactor = 1;
@@ -449,7 +416,7 @@ export function startTour(canvas: HTMLCanvasElement, emblemUrl: string, reduceMo
   observer.observe(canvas);
   resize();
 
-  // Camera and robot motion between stops.
+  // Camera motion between stops.
   const cameraFrom = new THREE.Vector3(...STOPS.welcome.camera).add(new THREE.Vector3(0, 14, 30));
   const cameraTo = new THREE.Vector3(...STOPS.welcome.camera);
   const targetFrom = new THREE.Vector3(...STOPS.welcome.target);
@@ -457,9 +424,6 @@ export function startTour(canvas: HTMLCanvasElement, emblemUrl: string, reduceMo
   const target = targetFrom.clone();
   let moveStart = 0;
   let moveDuration = 3.2;
-  let pose: RobotPose = "center";
-  let poseFrom = { position: poses.center.position.clone(), scale: 0.0001 };
-  let poseStart = 0.6;
 
   const clock = new THREE.Clock();
   const now = () => (reduceMotion ? 1000 : clock.getElapsedTime());
@@ -472,19 +436,10 @@ export function startTour(canvas: HTMLCanvasElement, emblemUrl: string, reduceMo
     cameraTo.set(...STOPS[stop].camera).sub(targetTo).multiplyScalar(distanceFactor).add(targetTo);
     moveStart = t;
     moveDuration = Math.min(4, 2 + cameraFrom.distanceTo(cameraTo) * 0.05);
-    if (STOPS[stop].robot !== pose) {
-      poseFrom = { position: rig.position.clone(), scale: rig.scale.x };
-      pose = STOPS[stop].robot;
-      poseStart = t;
-    }
     if (reduceMotion) renderStill();
   };
 
-  const pointer = new THREE.Vector2();
-  const onPointer = (event: PointerEvent) => pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
-  window.addEventListener("pointermove", onPointer);
 
-  let talking = false;
   let frame = 0;
   const render = () => {
     const t = now();
@@ -498,12 +453,6 @@ export function startTour(canvas: HTMLCanvasElement, emblemUrl: string, reduceMo
     camera.position.y += Math.sin(t * 0.33) * 0.15;
     camera.lookAt(target);
 
-    // Robot glides between the centre and the corner.
-    const p = easeInOut(THREE.MathUtils.clamp((t - poseStart) / 1.3, 0, 1));
-    rig.position.lerpVectors(poseFrom.position, poses[pose].position, p);
-    rig.scale.setScalar(THREE.MathUtils.lerp(poseFrom.scale, poses[pose].scale, p));
-    pad.visible = pose === "center";
-    android.update(t, talking, pointer);
 
     // Oasis.
     drone.position.set(-17 + Math.cos(t * 0.45) * 4.5, 7.4 + Math.sin(t * 1.3) * 0.25, -6 + Math.sin(t * 0.45) * 4.5);
@@ -552,11 +501,9 @@ export function startTour(canvas: HTMLCanvasElement, emblemUrl: string, reduceMo
 
   return {
     goTo,
-    setTalking: (value) => (talking = value),
     dispose: () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
-      window.removeEventListener("pointermove", onPointer);
       disposables.forEach((item) => item.dispose());
       renderer.dispose();
     },
