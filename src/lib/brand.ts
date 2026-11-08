@@ -15,6 +15,8 @@ export const BRAND = {
   /** Logo files in /public/brand. */
   emblem: "/brand/csc-emblem.png",
   logo: "/brand/csc-logo.png",
+  /** The robot character that greets visitors on the home page. */
+  mascot: { name: "SAIF", nameAr: "سيف" },
 } as const;
 
 /**

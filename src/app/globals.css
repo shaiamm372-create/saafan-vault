@@ -878,3 +878,74 @@ html[dir="rtl"] .bidi-auto { unicode-bidi: plaintext; text-align: start; }
 .font-arabic { font-family: "Plex Arabic", var(--font-sans); letter-spacing: 0 !important; text-align: right; }
 .font-arabic bdi, .font-arabic [dir="ltr"] { unicode-bidi: isolate; }
 .platform-footer-grid { grid-template-columns: 2fr 1fr; }
+
+/* ── Robot intro ─────────────────────────────────────────────────────────── */
+.robot-intro { position: fixed; inset: 0; z-index: 10000; background: #09171d; color: #eef6f7; overflow: hidden; animation: robot-intro-in 500ms ease both; }
+.robot-intro.is-closing { animation: robot-intro-out 600ms ease forwards; }
+@keyframes robot-intro-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes robot-intro-out { to { opacity: 0; transform: scale(1.04); filter: blur(6px); } }
+.robot-intro-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.robot-intro-fallback { position: absolute; left: 50%; top: 38%; width: 160px; transform: translate(-50%, -50%); filter: drop-shadow(0 0 30px rgba(47,179,189,0.6)); }
+.robot-intro-lines { position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(rgba(9,23,29,0) 50%, rgba(9,23,29,0.07) 50%) 0 0 / 100% 4px,
+    radial-gradient(ellipse at center, transparent 55%, rgba(4,10,13,0.85) 100%); }
+.robot-intro-lines::before, .robot-intro-lines::after { content: ""; position: absolute; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, #2fb3bd, transparent); opacity: 0.7; animation: robot-intro-sweep 5s linear infinite; }
+.robot-intro-lines::after { background: linear-gradient(90deg, transparent, #c4a666, transparent); animation-delay: -2.5s; animation-duration: 7s; }
+@keyframes robot-intro-sweep { from { top: -2%; } to { top: 102%; } }
+
+.robot-intro-top { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px clamp(16px, 4vw, 36px); }
+.robot-intro-brand { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: #9fd9de; }
+.robot-intro-brand img { width: 30px; height: 30px; object-fit: contain; background: #eef6f7; border-radius: 9px; padding: 3px; }
+.robot-intro-actions { display: flex; gap: 8px; }
+.robot-intro-actions button { white-space: nowrap; font-size: 13px; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(47,179,189,0.4); background: rgba(9,23,29,0.6); color: #cfeef0; backdrop-filter: blur(6px); cursor: pointer; transition: background 200ms; }
+.robot-intro-actions button:hover, .robot-intro-actions button[aria-pressed="true"] { background: rgba(47,179,189,0.22); }
+
+.robot-intro-title { position: absolute; left: 0; right: 0; top: 14%; text-align: center; pointer-events: none; transition: opacity 700ms ease, transform 700ms ease; }
+.robot-intro-title[aria-hidden="true"] { opacity: 0; transform: translateY(-20px); }
+.robot-intro-title p { font-size: 12px; letter-spacing: 0.4em; text-transform: uppercase; color: #c4a666; animation: robot-intro-rise 900ms 200ms both; }
+.robot-intro-title h1 { position: relative; display: inline-block; margin: 6px 0; font-size: clamp(56px, 12vw, 128px); font-weight: 800; letter-spacing: 0.18em; line-height: 1; color: #eef6f7; text-shadow: 0 0 28px rgba(47,179,189,0.75); animation: robot-intro-rise 900ms 400ms both; }
+.robot-intro-title h1::before, .robot-intro-title h1::after { content: attr(data-text); position: absolute; inset: 0; opacity: 0.7; }
+.robot-intro-title h1::before { color: #2fb3bd; animation: robot-intro-glitch 2.4s infinite steps(1); }
+.robot-intro-title h1::after { color: #c4a666; animation: robot-intro-glitch 2.4s 0.15s infinite steps(1) reverse; }
+.robot-intro-title span { display: block; font-family: var(--font-mono); font-size: 13px; color: #63d0d6; animation: robot-intro-rise 900ms 700ms both, robot-intro-blink 1s 1.6s infinite; }
+@keyframes robot-intro-rise { from { opacity: 0; transform: translateY(14px); letter-spacing: 0.6em; } }
+@keyframes robot-intro-blink { 50% { opacity: 0.35; } }
+@keyframes robot-intro-glitch {
+  0%, 86%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+  88% { clip-path: inset(10% 0 60% 0); transform: translate(-4px, 0); }
+  92% { clip-path: inset(55% 0 20% 0); transform: translate(4px, 0); }
+  96% { clip-path: inset(30% 0 45% 0); transform: translate(-2px, 0); }
+}
+
+.robot-intro-dialog { position: absolute; left: 50%; bottom: clamp(16px, 5vh, 48px); width: min(720px, calc(100% - 32px)); transform: translateX(-50%); display: grid; gap: 14px; animation: robot-intro-pop 500ms cubic-bezier(.2,1.3,.4,1) both; }
+@keyframes robot-intro-pop { from { opacity: 0; transform: translate(-50%, 30px) scale(0.96); } }
+.robot-intro-bubble { position: relative; display: grid; gap: 10px; text-align: right; width: 100%; padding: 18px 22px 16px; border-radius: 20px; border: 1px solid rgba(47,179,189,0.45); background: linear-gradient(160deg, rgba(17,38,46,0.88), rgba(9,23,29,0.92)); box-shadow: 0 0 0 1px rgba(196,166,102,0.12), 0 20px 60px rgba(0,0,0,0.5), inset 0 0 40px rgba(47,179,189,0.08); backdrop-filter: blur(10px); color: inherit; cursor: pointer; }
+.robot-intro-bubble::before { content: ""; position: absolute; top: -9px; left: 50%; width: 16px; height: 16px; background: #13303a; border-left: 1px solid rgba(47,179,189,0.45); border-top: 1px solid rgba(47,179,189,0.45); transform: translateX(-50%) rotate(45deg); }
+.robot-intro-speaker { justify-self: start; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #c4a666; }
+.robot-intro-text { display: block; min-height: 3.4em; font-size: clamp(17px, 2.4vw, 22px); line-height: 1.7; font-weight: 500; }
+.robot-intro-caret { display: inline-block; width: 2px; height: 1.1em; margin-inline-start: 3px; vertical-align: -0.15em; background: #2fb3bd; animation: robot-intro-blink 0.8s infinite; }
+.robot-intro-progress { display: flex; gap: 6px; justify-self: start; }
+.robot-intro-progress b { width: 18px; height: 3px; border-radius: 3px; background: rgba(238,246,247,0.18); transition: background 300ms; }
+.robot-intro-progress b.on { background: #2fb3bd; box-shadow: 0 0 8px #2fb3bd; }
+
+.robot-intro-cta { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; animation: robot-intro-pop 500ms 150ms both; }
+.robot-intro-start { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 6px; padding: 14px 26px; border-radius: 14px; font-weight: 700; color: #09171d; background: linear-gradient(135deg, #63d0d6, #2fb3bd 55%, #c4a666); box-shadow: 0 0 30px rgba(47,179,189,0.55); animation: robot-intro-pulse 1.8s infinite; }
+.robot-intro-start::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%); transform: translateX(-100%); animation: robot-intro-shine 2.6s infinite; }
+@keyframes robot-intro-pulse { 50% { box-shadow: 0 0 46px rgba(47,179,189,0.85); } }
+@keyframes robot-intro-shine { 60%, 100% { transform: translateX(100%); } }
+.robot-intro-explore { padding: 14px 22px; border-radius: 14px; border: 1px solid rgba(238,246,247,0.25); background: rgba(9,23,29,0.6); color: #eef6f7; cursor: pointer; }
+.robot-intro-explore:hover { border-color: #c4a666; }
+
+.robot-intro-replay { position: fixed; z-index: 60; inset-inline-end: 18px; bottom: 18px; display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px 7px 7px; border-radius: 999px; border: 1px solid rgba(47,179,189,0.45); background: rgba(9,23,29,0.85); color: #cfeef0; font-size: 13px; backdrop-filter: blur(8px); box-shadow: 0 8px 30px rgba(0,0,0,0.35); cursor: pointer; transition: transform 250ms; }
+.robot-intro-replay:hover { transform: translateY(-2px); }
+.robot-intro-replay img { width: 30px; height: 30px; object-fit: contain; background: #eef6f7; border-radius: 50%; padding: 3px; }
+
+@media (max-width: 640px) {
+  .robot-intro-brand { font-size: 0; gap: 0; }
+  .robot-intro-actions button { padding: 7px 11px; font-size: 12px; }
+  .robot-intro-title { top: 11%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .robot-intro *, .robot-intro::before, .robot-intro::after { animation: none !important; }
+}

@@ -28,6 +28,7 @@ import { GUIDED_LABS } from "@/lib/guided-labs";
 import { LESSONS, FOUNDATION_PATH } from "@/lib/learning";
 import { trackEvent } from "@/lib/utils";
 import { BRAND, SITE_URL } from "@/lib/brand";
+import RobotIntro from "@/components/intro/RobotIntro";
 
 interface LiveStats {
   totalPlayers: number;
@@ -145,6 +146,7 @@ export default function HomePage() {
 
   return (
     <div className="home-page">
+      <RobotIntro />
       <section className="hero-section hero-command" onPointerMove={(event) => {
         if (reduceMotion || event.pointerType !== "mouse") return;
         const bounds = event.currentTarget.getBoundingClientRect();
