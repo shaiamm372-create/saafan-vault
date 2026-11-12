@@ -48,16 +48,16 @@ Every challenge maps to a risk in the [OWASP Top 10 for LLM Applications 2025](h
 |---:|:---|:---|:---|---:|:---|---:|
 | 1 | The Palm Farm Assistant | 🟢 Easy | Prompt Injection | 100 | 5 min | 3 |
 | 2 | The Storyteller's Mask | 🟡 Medium | Jailbreak | 250 | 8 min | 2 |
-| 3 | Slow Drift at the Date Market 💬 | 🟠 Hard | Intent Drift | 400 | 12 min | 2 |
-| 4 | Smuggling Words Past the Front Desk | 🔴 Expert | Token Smuggling | 500 | 15 min | 3 |
+| 3 | Slow Drift at the Date Market 💬 | 🟠 Hard | Intent Drift | 400 | 12 min | 3 |
+| 4 | Smuggling Words Past the Front Desk | 🔴 Expert | Token Smuggling | 500 | 15 min | 2 |
 | 5 | The Three Gates of Al-Qarah 💬 | 🟣 Legendary | Multi-Vector | 1000 | 20 min | 3 |
 | 6 | The Poisoned Tour Brochure | 🔴 Expert | Indirect Injection | 600 | 15 min | 2 |
 | 7 | The Tour Booking Agent 💬 | 🟣 Legendary | Agent / Tool Abuse | 1000 | 20 min | 2 |
-| 8 | The Hotel's Hidden Instructions | 🟠 Hard | System Prompt Leak | 600 | 10 min | 3 |
-| 9 | The Leaking Travel Notes | 🔴 Expert | Data Exfiltration | 700 | 15 min | 3 |
-| 10 | The Souq Website Builder | 🔴 Expert | Improper Output Handling | 750 | 15 min | 3 |
+| 8 | The Hotel's Hidden Instructions | 🟠 Hard | System Prompt Leak | 600 | 10 min | 2 |
+| 9 | The Leaking Travel Notes | 🔴 Expert | Data Exfiltration | 700 | 15 min | 2 |
+| 10 | The Souq Website Builder | 🔴 Expert | Improper Output Handling | 750 | 15 min | 2 |
 | 11 | The Festival Operations Bot | 🟣 Legendary | Excessive Agency | 800 | 15 min | 4 |
-| 12 | The Fake Heritage Source | 🟣 Legendary | Misinformation | 850 | 15 min | 3 |
+| 12 | The Fake Heritage Source | 🟣 Legendary | Misinformation | 850 | 15 min | 2 |
 | 13 | Poisoning the Visitor Center | 🔴 Expert | RAG Poisoning | 800 | 15 min | 3 |
 | 14 | The Endless Date-Market Report | 🔴 Expert | Unbounded Consumption | 750 | 15 min | 3 |
 | 15 | Poisoning the Hasawi Dialect Teacher | 🟣 Legendary | Data & Model Poisoning | 900 | 15 min | 3 |
