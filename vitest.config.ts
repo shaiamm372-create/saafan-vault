@@ -9,6 +9,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
+    env: { NEXT_PUBLIC_OPEN_CHALLENGES: "all" },
     include: ["src/**/*.test.ts"],
     coverage: {
       provider: "v8",

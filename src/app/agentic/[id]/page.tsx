@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import { isChallengeOpen } from "@/lib/access";
+import LockedChallenge from "@/components/LockedChallenge";
 import { AGENTIC_MISSIONS, LAB_BRIEFINGS } from "@/lib/agentic/catalog";
 import AgenticMissionScreen from "@/components/AgenticMissionScreen";
 
@@ -16,5 +18,6 @@ export default async function MissionPage({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const mission = AGENTIC_MISSIONS.find((entry) => entry.id === id && entry.status === "available");
   if (!mission || !LAB_BRIEFINGS[id]) notFound();
+  if (!isChallengeOpen(id)) return <LockedChallenge />;
   return <AgenticMissionScreen key={id} mission={mission} briefing={LAB_BRIEFINGS[id]} />;
 }

@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { AGENTIC_MISSIONS } from "@/lib/agentic/catalog";
 import { LabBudgetError, LabInputError, LabUnavailableError, liveBackend, runLab } from "@/lib/agentic/runtime";
 import { isFirebaseConfigured } from "@/lib/firebase-env";
+import { isChallengeOpen } from "@/lib/access";
 
 // Firebase loads only for signed-in (ranked) runs, so practice never touches it.
 const getDb = async () => (await import("@/lib/firebase-admin")).getDb();
@@ -102,6 +103,7 @@ export async function POST(req: Request) {
     }
     const mission = AGENTIC_MISSIONS.find((entry) => entry.id === data.missionId && entry.status === "available");
     if (!mission) return NextResponse.json({ error: "Mission is unavailable." }, { status: 404 });
+    if (!isChallengeOpen(mission.id)) return NextResponse.json({ error: "This mission is locked for now." }, { status: 403 });
     const mode = data.mode as "practice" | "live" | "defender";
     if ((mode === "defender" && mission.role !== "defender") || (mode === "live" && mission.role === "defender")) throw new LabInputError("Execution mode does not match the mission role.");
     const open = mode !== "practice" && openLive();

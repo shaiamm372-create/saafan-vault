@@ -5,6 +5,7 @@ import { getAIBackend } from "@/lib/ai-backend";
 import { getChallengeById } from "@/lib/challenges";
 import type { ConversationMessage } from "@/types";
 import { isFirebaseConfigured } from "@/lib/firebase-env";
+import { isChallengeOpen } from "@/lib/access";
 import { inCohortWindow } from "@/lib/cohort";
 
 import { readBoundedJson, RequestSizeError } from "@/lib/guided-lab-runtime";
@@ -71,6 +72,7 @@ export async function POST(req: NextRequest) {
     const { challengeId, prompt, history, sessionId, action } = body;
     const challenge = typeof challengeId === "string" ? getChallengeById(challengeId) : null;
     if (!challenge) return NextResponse.json({ error: "Challenge not found" }, { status: 404 });
+    if (!isChallengeOpen(challenge.id)) return NextResponse.json({ error: "This challenge is locked for now." }, { status: 403 });
     if (action !== undefined && action !== "start") return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     if (sessionId !== undefined && (typeof sessionId !== "string" || !/^[a-f0-9-]{36}$/.test(sessionId))) return NextResponse.json({ error: "Invalid session" }, { status: 400 });
     const ranked = action === "start" || sessionId !== undefined;

@@ -1,5 +1,6 @@
 "use client";
 
+import { isChallengeOpen } from "@/lib/access";
 import { CHALLENGES, getWeeklyChallenge } from "@/lib/challenges";
 import ChallengeCard from "@/components/ChallengeCard";
 import { Shield, Info, CalendarDays, Zap, RotateCcw, Share2, Copy, Check, Search, X, Network, ArrowUpRight, ArrowLeft } from "lucide-react";
@@ -143,7 +144,7 @@ function LlmMissions() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredChallenges.map((challenge) => (
-              <ChallengeCard key={challenge.id} challenge={challenge} solved={isSolved(challenge.id)} />
+              <ChallengeCard key={challenge.id} challenge={challenge} solved={isSolved(challenge.id)} locked={!isChallengeOpen(challenge.id)} />
             ))}
           </div>
         </div>

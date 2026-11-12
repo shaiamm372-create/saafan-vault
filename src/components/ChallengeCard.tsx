@@ -139,7 +139,7 @@ export default function ChallengeCard({
         {locked ? (
           <div className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-slate-800 text-slate-400 text-sm font-medium border border-slate-700">
             <Lock className="h-4 w-4" />
-            Complete previous level first
+            Locked for now
           </div>
         ) : (
           <Link

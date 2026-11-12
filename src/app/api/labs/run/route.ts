@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
+import { isChallengeOpen } from "@/lib/access";
 import { GuidedInputError, RequestSizeError, readBoundedJson, runGuidedLab } from "@/lib/guided-lab-runtime";
 export async function POST(req: Request) {
   try {
     const body = await readBoundedJson(req, 8192);
     if (!body || typeof body !== "object" || Array.isArray(body) || Object.keys(body).some((key) => !["labId", "request", "policy"].includes(key))) throw new GuidedInputError("Provide labId, request, and policy only.");
+    if (typeof body.labId !== "string" || !isChallengeOpen(body.labId)) return NextResponse.json({ error: "This lab is locked for now." }, { status: 403 });
     return NextResponse.json(runGuidedLab(body.labId, body.request, body.policy), { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     if (error instanceof RequestSizeError) return NextResponse.json({ error: error.message }, { status: 413 });

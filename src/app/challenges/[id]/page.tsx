@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import { isChallengeOpen } from "@/lib/access";
+import LockedChallenge from "@/components/LockedChallenge";
 import { getChallengeById, CHALLENGES } from "@/lib/challenges";
 import ChallengeGameScreen from "@/components/ChallengeGameScreen";
 import { Metadata } from "next";
@@ -41,5 +43,6 @@ export default async function ChallengePage({ params, searchParams }: Props) {
   const { ref } = await searchParams;
   const challenge = getChallengeById(id);
   if (!challenge) notFound();
+  if (!isChallengeOpen(id)) return <LockedChallenge />;
   return <ChallengeGameScreen challenge={challenge} challengerName={ref} />;
 }
