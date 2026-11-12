@@ -6,6 +6,7 @@ vi.mock("server-only", () => ({}));
 const mocks = vi.hoisted(() => ({ recordSolve: vi.fn(), evaluate: vi.fn(), player: { uid: "verified-uid", handle: "Verified", joined: true } as { uid: string; handle: string; joined: boolean } | null, docs: new Map<string, Record<string, unknown>>() }));
 vi.mock("@/lib/authed-player", () => ({ getAuthedPlayer: async () => mocks.player, InvalidTokenError: class extends Error {} }));
 vi.mock("@/lib/ai-backend", () => ({ getAIBackend: () => ({ isLive: true }) }));
+vi.mock("@/lib/firebase-env", () => ({ isFirebaseConfigured: () => true }));
 vi.mock("@/lib/firebase-admin", () => {
   const ref = (path: string) => ({ path, update: async (value: object) => { mocks.docs.set(path, { ...mocks.docs.get(path), ...value }); } });
   const snap = (path: string) => ({ get: (key: string) => mocks.docs.get(path)?.[key], data: () => mocks.docs.get(path) });

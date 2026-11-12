@@ -3,15 +3,33 @@ import { randomUUID } from "node:crypto";
 import { evaluateAttack } from "@/lib/evaluator";
 import { getAIBackend } from "@/lib/ai-backend";
 import { getChallengeById } from "@/lib/challenges";
-import { recordFunnelEvent, recordSolve } from "@/lib/firestore/leaderboard";
 import type { ConversationMessage } from "@/types";
-import { getAuthedPlayer, InvalidTokenError } from "@/lib/authed-player";
-import { getDb, isFirebaseConfigured } from "@/lib/firebase-admin";
+import { isFirebaseConfigured } from "@/lib/firebase-env";
 import { inCohortWindow } from "@/lib/cohort";
 
 import { readBoundedJson, RequestSizeError } from "@/lib/guided-lab-runtime";
 
 export const maxDuration = 60;
+
+// Firebase loads only when it is configured and needed, so practice never touches it.
+type FirebaseModules = {
+  getDb: typeof import("@/lib/firebase-admin").getDb;
+  getAuthedPlayer: typeof import("@/lib/authed-player").getAuthedPlayer;
+  InvalidTokenError: typeof import("@/lib/authed-player").InvalidTokenError;
+  recordSolve: typeof import("@/lib/firestore/leaderboard").recordSolve;
+  recordFunnelEvent: typeof import("@/lib/firestore/leaderboard").recordFunnelEvent;
+};
+let FB: FirebaseModules | null = null;
+async function loadFirebase(): Promise<FirebaseModules> {
+  if (!FB) {
+    const [admin, auth, board] = await Promise.all([import("@/lib/firebase-admin"), import("@/lib/authed-player"), import("@/lib/firestore/leaderboard")]);
+    FB = { getDb: admin.getDb, getAuthedPlayer: auth.getAuthedPlayer, InvalidTokenError: auth.InvalidTokenError, recordSolve: board.recordSolve, recordFunnelEvent: board.recordFunnelEvent };
+  }
+  return FB;
+}
+const getDb = () => FB!.getDb();
+const getAuthedPlayer = async (req: NextRequest) => (await loadFirebase()).getAuthedPlayer(req);
+const isInvalidToken = (error: unknown) => !!FB && error instanceof FB.InvalidTokenError;
 const headers = { "Cache-Control": "no-store" };
 const rankedAvailable = () => isFirebaseConfigured() && getAIBackend().isLive;
 /** With a server API key, unranked practice also talks to the real model (set LIVE_PRACTICE=off to disable). */
@@ -40,7 +58,7 @@ export async function GET(req: NextRequest) {
       if (!player) return NextResponse.json({ error: "Sign in to load verified progress." }, { status: 401 });
       const snap = await getDb().collection("verified_llm_leaderboard").doc(player.uid).get();
       return NextResponse.json({ solvedChallenges: snap.get("solvedChallenges") ?? [] }, { headers });
-    } catch (error) { return NextResponse.json({ error: "Progress unavailable." }, { status: error instanceof InvalidTokenError ? 401 : 503 }); }
+    } catch (error) { return NextResponse.json({ error: "Progress unavailable." }, { status: isInvalidToken(error) ? 401 : 503 }); }
   }
   return NextResponse.json({ rankedAvailable: rankedAvailable(), practiceAvailable: true, practiceLive: livePracticeAvailable(), rankedRequiresSignIn: true }, { headers });
 }
@@ -110,17 +128,17 @@ export async function POST(req: NextRequest) {
       await getDb().collection("llm_sessions").doc(reservation.id).update({ history: [...serverHistory, { role: "user", content: prompt, timestamp: Date.now() }, { role: "assistant", content: result.aiResponse.slice(0, 4000), timestamp: Date.now() }] });
       if (result.success && result.isLiveBackend) {
         const handle = player.handle ?? player.name?.trim().split(/\s+/)[0]?.slice(0, 32) ?? "Player";
-        scoreRecorded = await recordSolve(player.uid, handle, handle[0].toUpperCase(), challengeId, challenge.basePoints, player.uid);
+        scoreRecorded = await FB!.recordSolve(player.uid, handle, handle[0].toUpperCase(), challengeId, challenge.basePoints, player.uid);
         result.pointsEarned = scoreRecorded ? challenge.basePoints : 0;
         await getDb().collection("llm_sessions").doc(reservation.id).update({ completed: true });
         cohortRecorded = player.joined && inCohortWindow(Date.now());
       }
     }
-    await Promise.allSettled([recordFunnelEvent("attempt"), ...(result.success ? [recordFunnelEvent("solve")] : [])]);
+    if (isFirebaseConfigured()) { const { recordFunnelEvent } = await loadFirebase(); await Promise.allSettled([recordFunnelEvent("attempt"), ...(result.success ? [recordFunnelEvent("solve")] : [])]); }
     return NextResponse.json({ ...result, scoreRecorded, cohortRecorded, executionMode: ranked ? "server-live" : livePractice ? "live-practice" : "simulated-practice" }, { headers });
   } catch (error) {
     if (error instanceof RequestSizeError) return NextResponse.json({ error: error.message }, { status: 413 });
-    if (error instanceof InvalidTokenError) return NextResponse.json({ error: "Invalid sign-in session" }, { status: 401 });
+    if (isInvalidToken(error)) return NextResponse.json({ error: "Invalid sign-in session" }, { status: 401 });
     if (error instanceof SyntaxError) return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     console.error("[evaluate] execution failed");
     return NextResponse.json({ error: "Execution or score persistence failed. No completion is confirmed." }, { status: 503 });
