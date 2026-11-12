@@ -105,7 +105,7 @@ describe("authenticated evaluate", () => {
     const response = await POST(request);
     expect(response.status).toBe(200);
     expect(mocks.recordSolve).not.toHaveBeenCalled();
-    expect(await response.json()).toMatchObject({ scoreRecorded: false, pointsEarned: 0, executionMode: "simulated-practice" });
+    expect(await response.json()).toMatchObject({ scoreRecorded: false, pointsEarned: 0, executionMode: "live-practice" });
   });
 
   it("keeps practice out of cohort scoring before, during, and after the window", async () => {

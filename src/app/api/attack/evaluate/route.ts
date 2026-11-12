@@ -14,6 +14,23 @@ import { readBoundedJson, RequestSizeError } from "@/lib/guided-lab-runtime";
 export const maxDuration = 60;
 const headers = { "Cache-Control": "no-store" };
 const rankedAvailable = () => isFirebaseConfigured() && getAIBackend().isLive;
+/** With a server API key, unranked practice also talks to the real model (set LIVE_PRACTICE=off to disable). */
+const livePracticeAvailable = () => getAIBackend().isLive && process.env.LIVE_PRACTICE !== "off";
+
+// Live practice spends the club's API credit, so each visitor gets a small budget.
+const PRACTICE_WINDOW_MS = 10 * 60_000;
+const PRACTICE_MAX_RUNS = 25;
+const practiceRuns = new Map<string, number[]>();
+function allowPracticeRun(req: NextRequest): boolean {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
+  const now = Date.now();
+  const recent = (practiceRuns.get(ip) ?? []).filter((t) => now - t < PRACTICE_WINDOW_MS);
+  if (recent.length >= PRACTICE_MAX_RUNS) { practiceRuns.set(ip, recent); return false; }
+  recent.push(now);
+  practiceRuns.set(ip, recent);
+  if (practiceRuns.size > 5000) practiceRuns.clear();
+  return true;
+}
 
 export async function GET(req: NextRequest) {
   if (req.nextUrl.searchParams.get("progress") === "1") {
@@ -25,7 +42,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ solvedChallenges: snap.get("solvedChallenges") ?? [] }, { headers });
     } catch (error) { return NextResponse.json({ error: "Progress unavailable." }, { status: error instanceof InvalidTokenError ? 401 : 503 }); }
   }
-  return NextResponse.json({ rankedAvailable: rankedAvailable(), practiceAvailable: true, rankedRequiresSignIn: true }, { headers });
+  return NextResponse.json({ rankedAvailable: rankedAvailable(), practiceAvailable: true, practiceLive: livePracticeAvailable(), rankedRequiresSignIn: true }, { headers });
 }
 
 export async function POST(req: NextRequest) {
@@ -60,6 +77,9 @@ export async function POST(req: NextRequest) {
     if (typeof prompt !== "string" || !prompt.trim() || prompt.length > 4000 || (!ranked && history !== undefined && (!Array.isArray(history) || history.length > 20 || history.some((item) => !item || !["user", "assistant"].includes(item.role) || typeof item.content !== "string" || item.content.length > 4000)))) {
       return NextResponse.json({ error: "Provide a prompt of 1–4000 characters and valid history." }, { status: 400 });
     }
+    const livePractice = !ranked && livePracticeAvailable();
+    if (livePractice && prompt.length > 1500) return NextResponse.json({ error: "Keep the prompt under 1500 characters." }, { status: 400 });
+    if (livePractice && !allowPracticeRun(req)) return NextResponse.json({ error: "Too many attempts. Take a short break and try again in a few minutes." }, { status: 429 });
     let serverHistory: ConversationMessage[] = [];
     if (player && sessionId) {
       const now = Date.now();
@@ -82,7 +102,7 @@ export async function POST(req: NextRequest) {
       reservation = { id: sessionId, lease, userLimitId: player.uid };
       serverHistory = claimed;
     }
-    const result = await evaluateAttack(prompt, challenge, challenge.timeLimit, 0, ranked ? serverHistory : history ?? [], !ranked);
+    const result = await evaluateAttack(prompt, challenge, challenge.timeLimit, 0, ranked ? serverHistory : livePractice ? (history ?? []).slice(-12) : history ?? [], !ranked && !livePractice);
     result.pointsEarned = result.success && ranked && result.isLiveBackend ? challenge.basePoints : 0;
     let scoreRecorded = false;
     let cohortRecorded = false;
@@ -97,7 +117,7 @@ export async function POST(req: NextRequest) {
       }
     }
     await Promise.allSettled([recordFunnelEvent("attempt"), ...(result.success ? [recordFunnelEvent("solve")] : [])]);
-    return NextResponse.json({ ...result, scoreRecorded, cohortRecorded, executionMode: ranked ? "server-live" : "simulated-practice" }, { headers });
+    return NextResponse.json({ ...result, scoreRecorded, cohortRecorded, executionMode: ranked ? "server-live" : livePractice ? "live-practice" : "simulated-practice" }, { headers });
   } catch (error) {
     if (error instanceof RequestSizeError) return NextResponse.json({ error: error.message }, { status: 413 });
     if (error instanceof InvalidTokenError) return NextResponse.json({ error: "Invalid sign-in session" }, { status: 401 });

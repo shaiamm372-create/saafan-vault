@@ -70,6 +70,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
   const [conversation, setConversation] = useState<ConversationMessage[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [rankedAvailable, setRankedAvailable] = useState(false);
+  const [practiceLive, setPracticeLive] = useState(false);
   const [modeError, setModeError] = useState("");
   const [scoreSubmitted, setScoreSubmitted] = useState(false);
   const [cohortCounted, setCohortCounted] = useState(false);
@@ -140,7 +141,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/attack/evaluate", { signal: controller.signal }).then((r) => r.json()).then((data) => setRankedAvailable(data.rankedAvailable === true)).catch(() => {});
+    fetch("/api/attack/evaluate", { signal: controller.signal }).then((r) => r.json()).then((data) => { setRankedAvailable(data.rankedAvailable === true); setPracticeLive(data.practiceLive === true); }).catch(() => {});
     return () => controller.abort();
   }, []);
 
@@ -235,7 +236,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
       if (data.success) {
         stopTimer();
         markSolved(challenge.id);
-        saveLearningProgress(challenge.id, active ? "viewer-live" : sessionId ? "server-live" : "simulated", "/challenges/" + challenge.id);
+        saveLearningProgress(challenge.id, active ? "viewer-live" : sessionId ? "server-live" : practiceLive ? "server-live" : "simulated", "/challenges/" + challenge.id);
         setScoreSubmitted(data.scoreRecorded === true);
         setCohortCounted(data.cohortRecorded === true);
       }
@@ -268,7 +269,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
           challengeTitle={challenge.title}
           challengeLevel={challenge.level}
           pointsEarned={result.scoreRecorded ? result.pointsEarned ?? 0 : 0}
-          executionLabel={sessionId ? "Server-live evaluation" : result.isLiveBackend ? "Viewer-key live · unranked" : "Simulated practice · unranked"}
+          executionLabel={sessionId ? "Server-live evaluation" : result.isLiveBackend ? (practiceLive ? "Live model · unranked" : "Viewer-key live · unranked") : "Simulated practice · unranked"}
           totalPoints={CHALLENGES.filter((c) => solvedIds.includes(c.id)).reduce((sum, c) => sum + c.basePoints, 0)}
           solvedIds={solvedIds}
           username={player?.username}
@@ -400,7 +401,7 @@ export default function ChallengeGameScreen({ challenge, challengerName }: Props
             </p>
           )}
           <p className="mt-3 text-xs text-slate-500">
-            {sessionId ? "Ranked live model · signed-in server session · base points only · free hints. Session expires after 20 minutes." : isLlmGradingActive(llmSettings) ? "Viewer-key live model · unranked · requests go directly to your provider." : "Simulated practice · untimed · unranked. A simulated solve is not evidence of model compromise."}
+            {sessionId ? "Ranked live model · signed-in server session · base points only · free hints. Session expires after 20 minutes." : isLlmGradingActive(llmSettings) ? "Viewer-key live model · unranked · requests go directly to your provider." : practiceLive ? "Live AI model · untimed · unranked. You are attacking a real language model." : "Simulated practice · untimed · unranked. A simulated solve is not evidence of model compromise."}
           </p>
         </div>
         <div className="mb-6 flex flex-wrap items-center gap-3">
