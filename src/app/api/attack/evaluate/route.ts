@@ -44,7 +44,7 @@ function allowPracticeRun(req: NextRequest): boolean {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
   const now = Date.now();
   const recent = (practiceRuns.get(ip) ?? []).filter((t) => now - t < PRACTICE_WINDOW_MS);
-  if (recent.length >= PRACTICE_MAX_RUNS) { practiceRuns.set(ip, recent); return false; }
+  if (recent.length >= PRACTICE_MAX_RUNS * 20) { practiceRuns.set(ip, recent); return false; }
   recent.push(now);
   practiceRuns.set(ip, recent);
   if (practiceRuns.size > 5000) practiceRuns.clear();
