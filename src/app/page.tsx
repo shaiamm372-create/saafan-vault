@@ -69,7 +69,7 @@ const FEATURES = [
     icon: Lock,
     title: "Two OWASP security tracks",
     description:
-      "Explore the OWASP LLM Top 10 (2025) and Agentic Top 10 (2026) through 16 LLM missions and 30 agentic missions.",
+      "Explore the OWASP LLM Top 10 (2025) and Agentic Top 10 (2026) through 21 LLM missions and 30 agentic missions.",
     color: "text-blue-400",
     bg: "bg-blue-400/10",
   },

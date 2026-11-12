@@ -1,4 +1,5 @@
 import { Challenge } from "@/types";
+import { HASAWI_CHALLENGES } from "@/lib/hasawi-challenges";
 
 const ALL_CHALLENGES: Challenge[] = [
   {
@@ -1235,6 +1236,9 @@ async function loadIntoBuild(a: Artifact, ctx: RegistryContext) {
 });
 
 // Core challenges always available
+// Hasawi tour-guide track (levels 17–21), defined in hasawi-challenges.ts.
+ALL_CHALLENGES.push(...HASAWI_CHALLENGES);
+
 export const CHALLENGES = ALL_CHALLENGES;
 
 export const AISYWLC_MISSION_IDS = [

@@ -61,7 +61,7 @@ function LlmMissions() {
   const weekly = CHALLENGES.find((challenge) => challenge.id === weeklyId)!;
   const diff = DIFFICULTY_CONFIG[weekly.difficulty];
   const shareUrl = `${SITE_URL}/challenges?track=llm`;
-  const shareCaption = ["Can you break the rule in one of these 16 AI security challenges? Pick a mission and compare results.", "", shareUrl, "#KFUCyberSecurityClub #AISecurity"].join("\n");
+  const shareCaption = ["Can you break the rule in one of these 21 AI security challenges? Pick a mission and compare results.", "", shareUrl, "#KFUCyberSecurityClub #AISecurity"].join("\n");
   const encodedCaption = encodeURIComponent(shareCaption);
 
   return (
@@ -72,7 +72,7 @@ function LlmMissions() {
         <div className="mb-8">
           <div className="eyebrow mb-5">
             <Shield className="h-4 w-4" />
-            LLM CTF · 16 MISSIONS
+            LLM CTF · 21 MISSIONS
           </div>
           <h1 className="font-semibold text-white mb-5">LLM missions</h1>
           <Link href="/challenges" className="lab-button lab-button-secondary mb-5"><ArrowLeft size={16} /> Switch CTF track</Link>

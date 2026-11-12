@@ -96,7 +96,7 @@ export default async function OGImage({ params }: { params: Promise<{ id: string
       {/* Bottom */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto" }}>
         <div style={{ color: "#4b6973", fontSize: 18 }}>{SITE_HOST}</div>
-        <div style={{ color: "#4b6973", fontSize: 18 }}>Free · No sign-up · 16 challenges</div>
+        <div style={{ color: "#4b6973", fontSize: 18 }}>Free · No sign-up · 21 challenges</div>
       </div>
     </div>,
     { ...size }
