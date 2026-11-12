@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, ChevronRight, Lightbulb, Loader2, Network, Play, RotateCcw, Shield, Terminal, XCircle } from "lucide-react";
 import type { AgenticMission, LabBriefing } from "@/lib/agentic/catalog";
+import { MISSION_STORIES } from "@/lib/agentic/stories";
 import type { LabRun, TraceEvent } from "@/lib/agentic/runtime";
 import { saveLearningProgress, downloadEvidence } from "@/lib/learning-progress";
 import { recordPracticeSolve } from "@/hooks/useAgenticProgress";
@@ -97,7 +98,7 @@ function AgenticMissionWorkspace({ mission, briefing }: { mission: AgenticMissio
   if (error || capabilityError) return <AgenticFailureNotice detail={error || "Could not check mission execution availability."} />;
   return <div className="agentic-lab pt-28 pb-24"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <Link href="/challenges" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white"><ArrowLeft size={15} /> All labs</Link>
-    <header className="agentic-mission-header"><p className="eyebrow"><Network size={14} /> {mission.code} / {mission.stage} / scenario v1</p><h1>{mission.title}</h1><p dir="rtl" lang="ar" className="font-arabic text-slate-300 text-lg leading-loose max-w-3xl ms-auto"><ArabicText text={ar.objective} /></p></header>
+    <header className="agentic-mission-header"><p className="eyebrow"><Network size={14} /> {mission.code} / {mission.stage} / scenario v1</p><h1>{mission.title}</h1>{MISSION_STORIES[mission.id] && <><p className="text-slate-400 max-w-3xl mt-2">{MISSION_STORIES[mission.id].en}</p><p dir="rtl" lang="ar" className="font-arabic text-emerald-200/90 text-lg leading-loose max-w-3xl ms-auto mt-2">{MISSION_STORIES[mission.id].ar}</p></>}<p dir="rtl" lang="ar" className="font-arabic text-slate-300 text-lg leading-loose max-w-3xl ms-auto"><ArabicText text={ar.objective} /></p></header>
     <div className="agentic-run-bar"><div className="agentic-mode-switch" role="group" aria-label="Execution mode"><button disabled={running} aria-pressed={mode === "practice"} onClick={() => selectMode("practice")}>Scripted practice</button><button disabled={running || loadingCapabilities || !(isDefender ? rankedDefenderAvailable : liveAvailable)} aria-pressed={mode !== "practice"} onClick={() => selectMode(isDefender ? "defender" : "live")}>{isDefender ? "Ranked defense" : "Live model"}</button></div><span className="text-xs text-slate-400">{mode === "practice" ? "Unranked · isolated simulation" : `${mission.points} pts · server-verified execution`}</span><button className="lab-button lab-button-secondary" disabled={running} onClick={reset}><RotateCcw size={15} /> Reset</button></div>
     {!loadingCapabilities && !capabilityError && !liveAvailable && !isDefender && <p className="agentic-notice">Live execution is unavailable on this server. Practice executes an explicit tool program against mock resources; it does not simulate natural-language model susceptibility.</p>}
     {mode !== "practice" && signInRequired && !player.user && <div className="agentic-notice">Verified Google sign-in is required for ranked runs. <button className="text-emerald-300 underline" onClick={() => void signIn()}>Sign in</button></div>}
