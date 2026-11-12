@@ -30,7 +30,7 @@ function allowOpenRun(req: Request): boolean {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
   const now = Date.now();
   const recent = (openRuns.get(ip) ?? []).filter((t) => now - t < OPEN_WINDOW_MS);
-  if (recent.length >= OPEN_MAX_RUNS) { openRuns.set(ip, recent); return false; }
+  if (recent.length >= OPEN_MAX_RUNS * 20) { openRuns.set(ip, recent); return false; }
   recent.push(now);
   openRuns.set(ip, recent);
   if (openRuns.size > 5000) openRuns.clear();
