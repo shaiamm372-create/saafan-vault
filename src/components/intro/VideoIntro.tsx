@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { BRAND } from "@/lib/brand";
 import { INTRO_VIDEO } from "./tourMedia";
+import { openHasawi } from "./HasawiChat";
 
 /** At the booth: if nobody answers the final question, play the video again. */
 const REPLAY_AFTER_MS = 45_000;
@@ -18,7 +19,6 @@ type Phase = "gate" | "playing" | "question";
  */
 export default function VideoIntro() {
   const [open, setOpen] = useState(false);
-  const [ready, setReady] = useState(false);
   const [closing, setClosing] = useState(false);
   const [phase, setPhase] = useState<Phase>("gate");
   const [progress, setProgress] = useState(0);
@@ -28,7 +28,7 @@ export default function VideoIntro() {
   useEffect(() => {
     let seen = false;
     try { seen = sessionStorage.getItem(SEEN_KEY) === "1"; } catch { /* storage blocked */ }
-    const show = window.setTimeout(() => { setReady(true); if (!seen) setOpen(true); }, 0);
+    const show = window.setTimeout(() => { if (!seen) setOpen(true); }, 0);
     const replay = () => { setPhase("gate"); setProgress(0); setClosing(false); setOpen(true); };
     window.addEventListener("robot-intro:open", replay);
     return () => { window.clearTimeout(show); window.removeEventListener("robot-intro:open", replay); };
@@ -75,7 +75,7 @@ export default function VideoIntro() {
   }, [open, close]);
 
   if (!INTRO_VIDEO) return null;
-  if (!open) return ready ? createPortal(<ReplayButton />, document.body) : null;
+  if (!open) return null;
 
   return createPortal(
     <div className={`robot-intro video-intro${closing ? " is-closing" : ""}`} role="dialog" aria-modal="true" aria-label={`Meet ${BRAND.mascot.name}`}>
@@ -121,6 +121,7 @@ export default function VideoIntro() {
             <Link href="/challenges" onClick={close} className="robot-intro-start">
               <span className="font-arabic">إيه، أبي أجرّب!</span> · Hack me →
             </Link>
+            <button type="button" onClick={() => { close(); window.setTimeout(openHasawi, 650); }} className="robot-intro-explore"><span className="font-arabic">تكلّم مع حساوي</span> 🎤</button>
             <button type="button" onClick={close} className="robot-intro-explore">Explore the platform</button>
           </div>
           <button type="button" className="robot-intro-mute" onClick={play}>Watch again</button>
@@ -132,15 +133,5 @@ export default function VideoIntro() {
       )}
     </div>,
     document.body,
-  );
-}
-
-function ReplayButton() {
-  return (
-    <button type="button" className="robot-intro-replay" onClick={() => window.dispatchEvent(new Event("robot-intro:open"))}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={BRAND.emblem} alt="" />
-      <span>Talk to {BRAND.mascot.name}</span>
-    </button>
   );
 }

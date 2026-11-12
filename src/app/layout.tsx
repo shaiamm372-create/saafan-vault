@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import HasawiChat from "@/components/intro/HasawiChat";
 import { CHALLENGES } from "@/lib/challenges";
 import { AGENTIC_MISSIONS } from "@/lib/agentic/catalog";
 import { GUIDED_LABS } from "@/lib/guided-labs";
@@ -143,6 +144,7 @@ export default function RootLayout({
         <a href="#main-content" className="skip-content-link">Skip to content</a>
         <main id="main-content" className="flex-1" tabIndex={-1}>{children}</main>
         <Footer />
+        <HasawiChat />
       </body>
     </html>
   );

@@ -7,6 +7,7 @@ import { BRAND } from "@/lib/brand";
 import { robotPoseFor, type StopId, type TourControls } from "./tourScene";
 import type { RobotControls } from "./robot3d";
 import { TOUR_MEDIA } from "./tourMedia";
+import { openHasawi } from "./HasawiChat";
 
 /** The tour: where the camera goes and what Hasawi says there. Edit freely. */
 const STEPS: { stop: StopId; place?: string; text: string }[] = [
@@ -87,7 +88,6 @@ function StopMedia({ stop }: { stop: StopId }) {
 
 export default function RobotIntro() {
   const [open, setOpen] = useState(false);
-  const [ready, setReady] = useState(false);
   const [closing, setClosing] = useState(false);
   const [started, setStarted] = useState(false);
   const [line, setLine] = useState(-1);
@@ -104,7 +104,7 @@ export default function RobotIntro() {
   useEffect(() => {
     let seen = false;
     try { seen = sessionStorage.getItem(SEEN_KEY) === "1" && !/^#tour-/.test(window.location.hash); } catch { /* storage blocked */ }
-    const show = window.setTimeout(() => { setReady(true); if (!seen) setOpen(true); }, 0);
+    const show = window.setTimeout(() => { if (!seen) setOpen(true); }, 0);
     const replay = () => { setLine(-1); setChars(0); setStarted(false); setClosing(false); setOpen(true); };
     window.addEventListener("robot-intro:open", replay);
     // Voices load in the background on some browsers.
@@ -226,7 +226,7 @@ export default function RobotIntro() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, close]);
 
-  if (!open) return ready ? createPortal(<RobotIntroReplay />, document.body) : null;
+  if (!open) return null;
   const step = line >= 0 ? STEPS[line] : null;
   const finished = line === STEPS.length - 1;
   const typed = step ? step.text.slice(0, chars) : "";
@@ -285,6 +285,7 @@ export default function RobotIntro() {
               <Link href="/challenges" onClick={close} className="robot-intro-start">
                 <span className="font-arabic">إيه، أبي أجرّب!</span> · Hack me →
               </Link>
+              <button type="button" onClick={() => { close(); window.setTimeout(openHasawi, 650); }} className="robot-intro-explore"><span className="font-arabic">تكلّم مع حساوي</span> 🎤</button>
               <button type="button" onClick={close} className="robot-intro-explore">Explore the platform</button>
             </div>
           )}
@@ -292,16 +293,5 @@ export default function RobotIntro() {
       )}
     </div>,
     document.body,
-  );
-}
-
-/** Small floating button that replays the intro. */
-function RobotIntroReplay() {
-  return (
-    <button type="button" className="robot-intro-replay" onClick={() => window.dispatchEvent(new Event("robot-intro:open"))}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={BRAND.emblem} alt="" />
-      <span>Talk to {BRAND.mascot.name}</span>
-    </button>
   );
 }
