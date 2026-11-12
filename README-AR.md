@@ -40,10 +40,10 @@
 | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | الرابط النهائي لو ربطتي نطاقًا خاصًا (مثل `https://ctf.example.com`) |
 | `OPENAI_API_KEY` أو `ANTHROPIC_API_KEY` | تشغيل نموذج حقيقي على الخادم بدل المقيّم الافتراضي (عليه تكلفة) |
-| `FIREBASE_PROJECT_ID`، `FIREBASE_CLIENT_EMAIL`، `FIREBASE_PRIVATE_KEY` | حفظ لوحة المتصدرين والمجتمع |
+| `FIREBASE_PROJECT_ID`، `FIREBASE_CLIENT_EMAIL`، `FIREBASE_PRIVATE_KEY` | حفظ تقدّم المسجّلين |
 | `NEXT_PUBLIC_FIREBASE_*` | تسجيل الدخول بـ Google |
 
-بدون Firebase: اللعبة والمهام والدروس كلها تشتغل، لكن لوحة المتصدرين والمجتمع وتسجيل الدخول ما تحفظ شيئًا. القيم المطلوبة موضّحة في `.env.local.example`.
+بدون Firebase: اللعبة والمهام والدروس كلها تشتغل، لكن تسجيل الدخول ما يحفظ شيئًا. القيم المطلوبة موضّحة في `.env.local.example`.
 
 ## التشغيل على جهازك
 

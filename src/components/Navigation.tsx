@@ -14,7 +14,6 @@ const NAV_LINKS = [
   { href: "/challenges?track=llm", label: "LLM CTF" },
   { href: "/agentic", label: "Agentic CTF" },
   { href: "/learn", label: "Learn" },
-  { href: "/community", label: "Community" },
 ];
 
 export default function Navigation() {
@@ -50,7 +49,6 @@ export default function Navigation() {
           {cohortPlayer.handle && <span className="hidden xl:block text-xs text-emerald-300">{cohortPlayer.handle}</span>}
           {cohortPlayer.user && <button onClick={() => void cohortPlayer.signOut()} className="hidden lg:block text-xs text-slate-400 hover:text-white underline">Sign out</button>}
           {guest && <button onClick={logOutGuest} className="hidden lg:block text-xs text-slate-400 hover:text-white underline" title={`Log out ${guest.username}`}>Log out</button>}
-          <Link href="/challenges" className="nav-cta hidden sm:inline-flex">Choose your CTF <ArrowUpRight className="h-3.5 w-3.5" /></Link>
           <button className="menu-toggle lg:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen} aria-controls="mobile-navigation" onKeyDown={(event) => { if (event.key === "Escape") setMobileOpen(false); }}>
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -64,7 +62,6 @@ export default function Navigation() {
               {cohortPlayer.handle && <span className="px-4 py-2 text-xs text-emerald-300">{cohortPlayer.handle} · Signed in</span>}
               {cohortPlayer.user && <button onClick={() => { setMobileOpen(false); void cohortPlayer.signOut(); }} className="px-4 py-2 text-left text-xs text-slate-400 underline">Sign out</button>}
               {guest && <button onClick={logOutGuest} className="px-4 py-2 text-left text-xs text-slate-400 underline">Log out ({guest.username})</button>}
-              <Link href="/challenges" onClick={() => setMobileOpen(false)} className="lab-button lab-button-primary mt-2">Choose your CTF <ArrowUpRight className="h-4 w-4" /></Link>
             </div>
           </motion.div>
         )}

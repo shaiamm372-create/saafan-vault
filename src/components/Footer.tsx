@@ -18,7 +18,6 @@ export default function Footer() {
             <Link href="/agentic">Agentic CTF</Link>
             <Link href="/challenges?view=labs">All labs & guided defenses</Link>
             <Link href="/research">Research</Link>
-            <Link href="/community">Community notes</Link>
           </nav>
         </div>
         <div className="platform-footer-bottom">
