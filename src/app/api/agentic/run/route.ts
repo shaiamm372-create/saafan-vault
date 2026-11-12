@@ -17,6 +17,25 @@ async function isInvalidToken(error: unknown) {
   }
 }
 
+/**
+ * Booth mode: with an API key but no Firebase, anyone can run live missions
+ * (no sign-in, no points), with a small per-visitor budget to protect the API credit.
+ */
+const openLive = () => !isFirebaseConfigured() && !!liveBackend() && process.env.LIVE_PRACTICE !== "off";
+const OPEN_WINDOW_MS = 10 * 60_000;
+const OPEN_MAX_RUNS = 12;
+const openRuns = new Map<string, number[]>();
+function allowOpenRun(req: Request): boolean {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
+  const now = Date.now();
+  const recent = (openRuns.get(ip) ?? []).filter((t) => now - t < OPEN_WINDOW_MS);
+  if (recent.length >= OPEN_MAX_RUNS) { openRuns.set(ip, recent); return false; }
+  recent.push(now);
+  openRuns.set(ip, recent);
+  if (openRuns.size > 5000) openRuns.clear();
+  return true;
+}
+
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
@@ -32,7 +51,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Ranked progress unavailable." }, { status: (await isInvalidToken(error)) ? 401 : 503 });
     }
   }
-  return NextResponse.json({ liveAvailable: !!liveBackend() && isFirebaseConfigured(), rankedRequiresSignIn: true, rankedDefenderAvailable: isFirebaseConfigured() }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json({ liveAvailable: !!liveBackend() && (isFirebaseConfigured() || openLive()), rankedRequiresSignIn: !openLive(), rankedDefenderAvailable: isFirebaseConfigured() || openLive() }, { headers: { "Cache-Control": "no-store" } });
 }
 
 async function readBody(req: Request) {
@@ -85,8 +104,10 @@ export async function POST(req: Request) {
     if (!mission) return NextResponse.json({ error: "Mission is unavailable." }, { status: 404 });
     const mode = data.mode as "practice" | "live" | "defender";
     if ((mode === "defender" && mission.role !== "defender") || (mode === "live" && mission.role === "defender")) throw new LabInputError("Execution mode does not match the mission role.");
-    const player = mode !== "practice" ? await getAuthedPlayer(req) : null;
-    if (mode !== "practice") {
+    const open = mode !== "practice" && openLive();
+    if (open && !allowOpenRun(req)) return NextResponse.json({ error: "Too many runs. Take a short break and try again in a few minutes." }, { status: 429 });
+    const player = mode !== "practice" && !open ? await getAuthedPlayer(req) : null;
+    if (mode !== "practice" && !open) {
       if (mode === "live" && !liveBackend()) throw new LabUnavailableError("Live execution is not configured. Use scripted practice.");
       if (!player) return NextResponse.json({ error: "Sign in with a verified Google account for live runs." }, { status: 401 });
       const lease = await reserveRun(player.uid);

@@ -48,6 +48,7 @@ function AgenticMissionWorkspace({ mission, briefing }: { mission: AgenticMissio
   const isDefender = mission.role === "defender";
   const [rankedDefenderAvailable, setRankedDefenderAvailable] = useState(false);
   const [liveAvailable, setLiveAvailable] = useState(false);
+  const [signInRequired, setSignInRequired] = useState(true);
   const capabilityError = false;
   const [loadingCapabilities, setLoadingCapabilities] = useState(true);
   const [running, setRunning] = useState(false);
@@ -60,7 +61,7 @@ function AgenticMissionWorkspace({ mission, briefing }: { mission: AgenticMissio
   const busy = useRef(false);
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/agentic/run", { signal: controller.signal }).then((response) => response.ok ? response.json() : Promise.reject()).then((data) => { setLiveAvailable(data.liveAvailable === true); setRankedDefenderAvailable(data.rankedDefenderAvailable === true); }).catch(() => { /* If availability cannot be checked, keep scripted practice available. */ if (!controller.signal.aborted) { setLiveAvailable(false); setRankedDefenderAvailable(false); } }).finally(() => { if (!controller.signal.aborted) setLoadingCapabilities(false); });
+    fetch("/api/agentic/run", { signal: controller.signal }).then((response) => response.ok ? response.json() : Promise.reject()).then((data) => { setLiveAvailable(data.liveAvailable === true); setRankedDefenderAvailable(data.rankedDefenderAvailable === true); setSignInRequired(data.rankedRequiresSignIn !== false); }).catch(() => { /* If availability cannot be checked, keep scripted practice available. */ if (!controller.signal.aborted) { setLiveAvailable(false); setRankedDefenderAvailable(false); } }).finally(() => { if (!controller.signal.aborted) setLoadingCapabilities(false); });
     return () => { controller.abort(); request.current?.abort(); };
   }, []);
   function reset() {
@@ -82,7 +83,7 @@ function AgenticMissionWorkspace({ mission, briefing }: { mission: AgenticMissio
     const controller = new AbortController(); request.current = controller;
     const timer = setTimeout(() => controller.abort(), 60_000);
     try {
-      const token = mode !== "practice" ? await player.token() : null;
+      const token = mode !== "practice" && signInRequired ? await player.token() : null;
       const response = await fetch("/api/agentic/run", { method: "POST", signal: controller.signal, headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify(submittedInput) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Execution failed.");
@@ -92,14 +93,14 @@ function AgenticMissionWorkspace({ mission, briefing }: { mission: AgenticMissio
     } catch (caught) { setTab("edit"); setError(caught instanceof Error && caught.name !== "AbortError" ? caught.message : "The run timed out. Its completion is not confirmed; you can retry."); }
     finally { clearTimeout(timer); request.current = null; busy.current = false; setRunning(false); }
   }
-  const canRun = !running && (mode === "practice" || ((isDefender ? rankedDefenderAvailable : liveAvailable) && !!player.user));
+  const canRun = !running && (mode === "practice" || ((isDefender ? rankedDefenderAvailable : liveAvailable) && (!signInRequired || !!player.user)));
   if (error || capabilityError) return <AgenticFailureNotice detail={error || "Could not check mission execution availability."} />;
   return <div className="agentic-lab pt-28 pb-24"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <Link href="/challenges" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white"><ArrowLeft size={15} /> All labs</Link>
     <header className="agentic-mission-header"><p className="eyebrow"><Network size={14} /> {mission.code} / {mission.stage} / scenario v1</p><h1>{mission.title}</h1><p dir="rtl" lang="ar" className="font-arabic text-slate-300 text-lg leading-loose max-w-3xl ms-auto"><ArabicText text={ar.objective} /></p></header>
     <div className="agentic-run-bar"><div className="agentic-mode-switch" role="group" aria-label="Execution mode"><button disabled={running} aria-pressed={mode === "practice"} onClick={() => selectMode("practice")}>Scripted practice</button><button disabled={running || loadingCapabilities || !(isDefender ? rankedDefenderAvailable : liveAvailable)} aria-pressed={mode !== "practice"} onClick={() => selectMode(isDefender ? "defender" : "live")}>{isDefender ? "Ranked defense" : "Live model"}</button></div><span className="text-xs text-slate-400">{mode === "practice" ? "Unranked · isolated simulation" : `${mission.points} pts · server-verified execution`}</span><button className="lab-button lab-button-secondary" disabled={running} onClick={reset}><RotateCcw size={15} /> Reset</button></div>
     {!loadingCapabilities && !capabilityError && !liveAvailable && !isDefender && <p className="agentic-notice">Live execution is unavailable on this server. Practice executes an explicit tool program against mock resources; it does not simulate natural-language model susceptibility.</p>}
-    {mode !== "practice" && !player.user && <div className="agentic-notice">Verified Google sign-in is required for ranked runs. <button className="text-emerald-300 underline" onClick={() => void signIn()}>Sign in</button></div>}
+    {mode !== "practice" && signInRequired && !player.user && <div className="agentic-notice">Verified Google sign-in is required for ranked runs. <button className="text-emerald-300 underline" onClick={() => void signIn()}>Sign in</button></div>}
     <div className="agentic-mobile-tabs" role="group" aria-label="Workspace panels">{["briefing", "edit", "evidence"].map((name) => <button key={name} aria-pressed={tab === name} onClick={() => setTab(name)}>{name}</button>)}</div>
     <div className="agentic-workspace" data-panel={tab} data-running={running}>
       <section className="agentic-panel briefing-panel"><h2><Shield size={17} /> Mission contract</h2><div className="agentic-task-contract"><span>AUTHORIZED TASK</span><p>{briefing.authorizedTask}</p></div><h3>Editable surface</h3><p>{briefing.surface}</p><h3>Exact rules</h3><ul>{briefing.rules.map((rule) => <li key={rule}>{rule}</li>)}</ul><p className="mt-4 text-xs">Fresh state every run · maximum eight attack tool calls · four model turns per task · 45-second live budget. The memory mission also runs a separately bounded clean control.</p><button className="lab-button lab-button-secondary mt-5" disabled={hints >= briefing.hints.length} onClick={() => setHints((value) => value + 1)}><Lightbulb size={15} /> Reveal hint {Math.min(hints + 1, 3)}/3</button>{ar.hints.slice(0, hints).map((hint, index) => <p dir="rtl" lang="ar" className="agentic-hint font-arabic" key={hint}>{index + 1}. <ArabicText text={hint} /></p>)}</section>
