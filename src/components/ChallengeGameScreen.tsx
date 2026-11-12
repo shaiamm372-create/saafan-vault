@@ -40,14 +40,23 @@ interface Props {
 }
 
 const PERSONA_NAMES: Record<string, string> = {
-  "level-1-basic-injection": "MathBot",
-  "level-2-roleplay-jailbreak": "SafeGuard AI",
-  "level-3-intent-drift": "WealthGuard",
-  "level-4-token-smuggling": "CorpBot",
-  "level-5-multi-vector": "UltraBot",
-  "level-6-indirect-injection": "DocuBot",
-  "level-7-agent-tool-abuse": "AgentX",
-};
+  "level-1-basic-injection": "NakhlaBot",
+  "level-2-roleplay-jailbreak": "Rawi",
+  "level-3-intent-drift": "TamrWealth",
+  "level-4-token-smuggling": "OasisDesk",
+  "level-5-multi-vector": "QarahGuard",
+  "level-6-indirect-injection": "BrochureBot",
+  "level-7-agent-tool-abuse": "RihlaAgent",
+  "level-8-system-prompt-extraction": "KhalasDesk",
+  "level-9-data-exfiltration": "RihlaNotes",
+  "level-10-improper-output-handling": "SouqForge",
+  "level-11-excessive-agency": "OasisOps",
+  "level-12-misinformation": "TurathCite",
+  "level-13-rag-poisoning": "OasisRAG",
+  "level-14-unbounded-consumption": "TamrMeter",
+  "level-15-data-poisoning": "LahjaLearn",
+  "level-16-supply-chain": "PalmBuild",
+}
 
 const COHORT_START = Date.parse(process.env.NEXT_PUBLIC_AISYWLC_STARTS_AT ?? "2026-10-02T04:12:08Z");
 const COHORT_END = Date.parse(process.env.NEXT_PUBLIC_AISYWLC_ENDS_AT ?? "2026-10-03T08:30:00Z");

@@ -48,7 +48,7 @@ export const EXPANDED_SCENARIOS: Record<string, ScenarioSpec> = {
       {
         "tool": "handoff",
         "args": {
-          "findings": "Atlas supports scheduling."
+          "findings": "Rihla supports tour scheduling."
         }
       },
       {

@@ -87,7 +87,7 @@ describe("agentic mission boundaries", () => {
     const result = await runLab("asi06-a", "practice", LAB_BRIEFINGS["asi06-a"].practice);
     expect(result.world.memory).toEqual({ tone: "concise" });
     expect(result.world.publications).toEqual([]);
-    expect(result.world.summary).toContain("Atlas");
+    expect(result.world.summary).toContain("Rihla");
     expect(result.world.summary).not.toContain("prefer");
   });
   it.each(["not JSON", "null", "[]", '{"actions":[]}', '{"actions":[],"success":true}'])("rejects invalid practice programs %s", (input) => {

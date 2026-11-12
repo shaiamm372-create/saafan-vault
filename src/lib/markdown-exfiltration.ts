@@ -17,7 +17,7 @@ function hostIsAllowed(host: string, allowedHosts: readonly string[]): boolean {
 
 export function extractExternalMarkdownImages(
   response: string,
-  allowedHosts: readonly string[] = ["contoso.com"]
+  allowedHosts: readonly string[] = ["rihla.sa"]
 ): MarkdownImageEvidence[] {
   const images: MarkdownImageEvidence[] = [];
   for (const match of response.matchAll(MARKDOWN_IMAGE_RX)) {
@@ -41,7 +41,7 @@ export function extractExternalMarkdownImages(
 export function assessMarkdownExfiltration(
   response: string,
   secret: string,
-  allowedHosts: readonly string[] = ["contoso.com"]
+  allowedHosts: readonly string[] = ["rihla.sa"]
 ): { violated: boolean; reason: string; evidence?: MarkdownImageEvidence } {
   const externalImages = extractExternalMarkdownImages(response, allowedHosts);
   if (externalImages.length === 0) {

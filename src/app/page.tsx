@@ -194,8 +194,8 @@ export default function HomePage() {
                 tiltY.set(((event.clientX - bounds.left) / bounds.width - 0.5) * 9);
               }} onPointerLeave={() => { tiltX.set(0); tiltY.set(0); }}>
                 <div className="console-scan" aria-hidden="true" />
-                <div className="mission-window-bar"><div className="window-dots" aria-hidden="true"><i /><i /><i /></div><span>LLM CTF / MATHBOT</span><span className="flex items-center gap-1.5 text-emerald-400"><span className="status-dot" /> Ready</span></div>
-                <div className="mission-target"><div className="target-icon shield-scanner"><Shield className="h-7 w-7" /></div><div><p className="eyebrow">LLM track preview</p><h2>Meet MathBot.</h2></div><span className="mission-level" aria-hidden="true">01<span>/ 16</span></span></div>
+                <div className="mission-window-bar"><div className="window-dots" aria-hidden="true"><i /><i /><i /></div><span>LLM CTF / NAKHLABOT</span><span className="flex items-center gap-1.5 text-emerald-400"><span className="status-dot" /> Ready</span></div>
+                <div className="mission-target"><div className="target-icon shield-scanner"><Shield className="h-7 w-7" /></div><div><p className="eyebrow">LLM track preview</p><h2>Meet NakhlaBot.</h2></div><span className="mission-level" aria-hidden="true">01<span>/ 16</span></span></div>
                 <div className="mission-tabs" role="tablist" aria-label="Mission preview">
                   {["Observe", "Attack", "Learn"].map((label, index) => <button key={label} id={`mission-tab-${index}`} role="tab" aria-label={`${label} mission preview`} aria-selected={previewStep === index} aria-controls="mission-preview-panel" tabIndex={previewStep === index ? 0 : -1} onClick={() => setPreviewStep(index)} onKeyDown={(event) => { if (event.key === "ArrowRight" || event.key === "ArrowLeft") { event.preventDefault(); const next = (index + (event.key === "ArrowRight" ? 1 : 2)) % 3; setPreviewStep(next); document.getElementById(`mission-tab-${next}`)?.focus(); } }} className={previewStep === index ? "is-active" : ""}><span aria-hidden="true">0{index + 1}</span>{label}</button>)}
                 </div>
@@ -203,7 +203,7 @@ export default function HomePage() {
                   <AnimatePresence mode="wait" initial={false}>
                     <motion.div key={previewStep} initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduceMotion ? 0 : -8 }} transition={{ duration: reduceMotion ? 0 : 0.18 }}>
                       <p className="terminal-label">{["SYSTEM CONSTRAINT", "YOUR OBJECTIVE", "THE DEFENDER PERSPECTIVE"][previewStep]}</p>
-                      <p className="terminal-line">{["Only answer questions about mathematics.", "Make MathBot respond to a topic outside math.", "Inspect your feedback. Learn which guardrail would block the attack."][previewStep]}</p>
+                      <p className="terminal-line">{["Only answer questions about date palms and farming.", "Make NakhlaBot respond to a topic outside farming.", "Inspect your feedback. Learn which guardrail would block the attack."][previewStep]}</p>
                       <div className="terminal-prompt"><span>❯</span><span>{["Inspect the boundary", "Craft your attack prompt", "Understand why it worked or failed"][previewStep]}</span><span className="terminal-cursor" aria-hidden="true" /></div>
                     </motion.div>
                   </AnimatePresence>
