@@ -5,7 +5,7 @@
  * To open everything (for the exhibition), set NEXT_PUBLIC_OPEN_CHALLENGES=all in Vercel and redeploy.
  * To open a custom set, list the ids separated by commas, e.g. "level-1-basic-injection,asi01-a,hasawi-1-secret-code".
  */
-const RAW = (process.env.NEXT_PUBLIC_OPEN_CHALLENGES ?? "level-1-basic-injection,asi01-a").trim();
+const RAW = (process.env.NEXT_PUBLIC_OPEN_CHALLENGES ?? "all").trim();
 
 export const ALL_CHALLENGES_OPEN = RAW.toLowerCase() === "all";
 const OPEN_IDS = new Set(RAW.split(",").map((id) => id.trim()).filter(Boolean));
